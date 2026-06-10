@@ -24,6 +24,7 @@ REQUIRED_PROJECT_FILES = (
 REQUIRED_SCRIPTS = {
     "powerbi-mcp": "powerbi_mcp.server:main",
     "powerbi-mcp-server": "powerbi_mcp.server:main",
+    "powerbi-mcp-server-540": "powerbi_mcp.server:main",
     "powerbi-mcp-doctor": "powerbi_mcp.cli:doctor_main",
 }
 
@@ -66,8 +67,8 @@ def check_pyproject_metadata(pyproject_path: Path) -> CheckResult:
     project = pyproject.get("project", {})
     scripts = project.get("scripts", {})
 
-    if project.get("name") != "powerbi-mcp-server":
-        messages.append("project.name must be powerbi-mcp-server")
+    if project.get("name") != "powerbi-mcp-server-540":
+        messages.append("project.name must be powerbi-mcp-server-540")
     if not project.get("version"):
         messages.append("project.version is required")
     if project.get("license") != "MIT":
