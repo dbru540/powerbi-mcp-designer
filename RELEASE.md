@@ -129,17 +129,17 @@ Codex:
 codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.2 powerbi-mcp-server-540
 ```
 
-## Known Local Blockers
+## Published Release State
 
-TestPyPI Trusted Publishing must still be configured from an authenticated
-TestPyPI account before TestPyPI publication can succeed. The attempted GitHub
-Actions run `27293576102` failed with `invalid-publisher` for the old package
-name, but the same publisher claims apply to the renamed package:
+Version `0.1.2` is published as `powerbi-mcp-server-540`:
 
-```text
-repo:dbru540/powerbi-mcp-server:environment:testpypi
+- TestPyPI workflow run: `27301193950`
+- PyPI workflow run: `27301286835`
+- GitHub tag: `v0.1.2`
+- PyPI URL: `https://pypi.org/project/powerbi-mcp-server-540/`
+
+Verified public install:
+
+```bash
+uvx powerbi-mcp-server-540 --help
 ```
-
-Production PyPI should use the renamed package `powerbi-mcp-server-540` because
-`powerbi-mcp-server` is already registered by another account. GitHub-only
-distribution is available from the tagged repository.
