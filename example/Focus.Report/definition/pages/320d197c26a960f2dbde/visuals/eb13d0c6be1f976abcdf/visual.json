@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "eb13d0c6be1f976abcdf",
+  "position": {
+    "x": 953.00668795166723,
+    "y": 376.63989427598949,
+    "z": 12000,
+    "height": 152,
+    "width": 161,
+    "tabOrder": 12000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Identify",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0fb3b3"
+                    }
+                  },
+                  {
+                    "value": " timesheets records "
+                  },
+                  {
+                    "value": "missing an area",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#722281"
+                    }
+                  },
+                  {
+                    "value": ". Then get it updated in "
+                  },
+                  {
+                    "value": "Azure DevOps",
+                    "textStyle": {
+                      "fontStyle": "italic"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+build/
+dist/
+temp_test_workspace/
+scratch/
+
+# Node
+node_modules/
+dist/
+*.js.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Power BI local settings
+.pbi/
+*.pbix
+
+# OMX durable vs runtime state
+.omx/logs/
+.omx/state/
+.omx/metrics.json
+
+# Superpowers visual brainstorming runtime
+.superpowers/

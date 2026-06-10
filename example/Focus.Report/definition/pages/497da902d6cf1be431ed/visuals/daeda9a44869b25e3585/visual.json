@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "daeda9a44869b25e3585",
+  "position": {
+    "x": 56.790326325754194,
+    "y": 668.31514458713627,
+    "z": 13000,
+    "height": 37.860217550502796,
+    "width": 337.44976512404668,
+    "tabOrder": 13000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Projects delivered and ready for invoicing",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0fb3b3"
+                    }
+                  },
+                  {
+                    "value": " are listed above"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

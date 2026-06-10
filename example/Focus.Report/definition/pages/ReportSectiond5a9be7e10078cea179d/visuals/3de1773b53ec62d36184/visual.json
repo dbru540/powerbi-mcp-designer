@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "3de1773b53ec62d36184",
+  "position": {
+    "x": 55.555555555555557,
+    "y": 175.55555555555554,
+    "z": 6000,
+    "height": 92.222222222222214,
+    "width": 147.77777777777777,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Analyze",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0fb3b3"
+                    }
+                  },
+                  {
+                    "value": " your budget, actual expenses, your remaining budget and understand what's available up to the end of the year"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

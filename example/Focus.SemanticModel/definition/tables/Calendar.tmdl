@@ -1,0 +1,152 @@
+table Calendar
+	lineageTag: 5bb14f8a-6eeb-4bb2-b936-4fc5170f888b
+
+	measure 'Day measure' = CALCULATE(SUM('Calendar'[Day]))
+		formatString: 0
+		lineageTag: d90071f4-b59f-4193-8846-99f81d9e811d
+
+		changedProperty = IsHidden
+
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 70642f5d-88e6-4ad7-bcef-0a831a49980d
+		summarizeBy: none
+		sourceColumn: Date
+
+		changedProperty = SortByColumn
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: string
+		lineageTag: 87f7f032-7956-4902-9f92-cc57fe20a087
+		summarizeBy: none
+		sourceColumn: Year
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		dataType: string
+		lineageTag: 24ea07d1-100b-46e8-8ed8-40dad7d6e362
+		summarizeBy: none
+		sourceColumn: Month
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: string
+		lineageTag: 05b9489f-f301-4d3e-8fc2-a237b5ea48dc
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column NotABankHoliday
+		dataType: int64
+		formatString: 0
+		lineageTag: 5d1208b3-cded-4c5e-9cef-fd52ba1f1a98
+		summarizeBy: sum
+		sourceColumn: NotABankHoliday
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ToBeWorkedDay
+		dataType: int64
+		formatString: 0
+		lineageTag: 2e14e5e8-7d31-4eab-9e39-d2407393639b
+		summarizeBy: sum
+		sourceColumn: ToBeWorkedDay
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeekNo
+		dataType: string
+		lineageTag: 1de65d9f-8717-4ab3-a214-dbff454a40b8
+		summarizeBy: none
+		sourceColumn: WeekNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b5669bb-d355-4dc0-bcca-60af5eec936e
+		summarizeBy: sum
+		sourceColumn: Day
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Calendar-dbb0a6d3-2d3d-4ee7-a74d-e1b41fce3ff1 = m
+		mode: import
+		queryGroup: DataImport
+		source =
+				let
+				    Source = List.Dates(
+				    Date.AddDays(DateTime.Date(DateTime.LocalNow()), -5650),
+				    6000,
+				    #duration(1, 0, 0, 0)
+				),
+				    #"Converti en table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Colonnes renommées" = Table.RenameColumns(#"Converti en table",{{"Column1", "Date"}}),
+				    #"Type modifié" = Table.TransformColumnTypes(#"Colonnes renommées",{{"Date", type date}}),
+				    #"Année insérée" = Table.AddColumn(#"Type modifié", "Year", each Date.Year([Date])),
+				    #"Colonne personnalisée ajoutée" = Table.AddColumn(#"Année insérée", "Month", each Date.ToText([Date], "MM"), type text),
+				    #"Colonne fusionnée insérée" = Table.AddColumn(#"Colonne personnalisée ajoutée", "YearMonth", each Text.Combine({Text.From([Year],"EN-US"),[Month]}), type text),
+				    #"Added Custom" = Table.AddColumn(#"Colonne fusionnée insérée", "Weekday", each if Date.DayOfWeek([Date]) = 0 then 0 else if Date.DayOfWeek([Date]) = 6 then 0 else 1),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom",{{"Weekday", Int64.Type}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"Date"}, #"Bank holidays", {"Date"}, "Bank holidays", JoinKind.LeftOuter),
+				    #"Expanded Bank holidays" = Table.ExpandTableColumn(#"Merged Queries", "Bank holidays", {"Bank holiday name"}, {"Bank holidays.Bank holiday name"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Expanded Bank holidays",{{"Bank holidays.Bank holiday name", "IsBankHoliday"}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Renamed Columns",{{"IsBankHoliday", type text}}),
+				    #"Added Conditional Column" = Table.AddColumn(#"Changed Type1", "Custom", each if [IsBankHoliday] = null then 1 else 0, type any),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Conditional Column",{"IsBankHoliday"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Removed Columns",{{"Custom", Int64.Type}}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type3",{{"Custom", "NotABankHoliday"}}),
+				    #"Added Custom1" = Table.AddColumn(#"Renamed Columns1", "ToBeWorkedDay", each [Weekday]*[NotABankHoliday]),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Added Custom1",{{"ToBeWorkedDay", Int64.Type}}),
+				    #"Sorted Rows" = Table.Sort(#"Changed Type2",{{"Date", Order.Ascending}}),
+				    #"Added Week" = Table.AddColumn(#"Sorted Rows", "Week", each Date.WeekOfYear([Date])),
+				    #"Added Week-one" = Table.AddColumn(#"Added Week", "Week-one", each if Date.WeekOfYear([Date])-1 = 0 then 52 else Date.WeekOfYear([Date])-1),
+				    #"Changed Type4" = Table.TransformColumnTypes(#"Added Week-one",{{"Week", type text},{"Week-one", type text}}),
+				    #"Added WeekNo" = Table.AddColumn(#"Changed Type4", "WeekNo", each Text.Combine({"W",[Week]})),
+				    #"Added WeekNo-1" = Table.AddColumn(#"Added WeekNo", "WeekNo-1", each Text.Combine({"W",[#"Week-one"]})),
+				    #"Changed Type5" = Table.TransformColumnTypes(#"Added WeekNo-1",{{"WeekNo", type text}, {"WeekNo-1", type text}, {"Year", type text}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Changed Type5",{"Week","Week-one"}),
+				    #"Lignes triées" = Table.Sort(#"Removed Columns1",{{"Date", Order.Descending}}),
+				    #"Added Custom2" = Table.AddColumn(#"Lignes triées", "Day", each Date.Day([Date])),
+				    #"Changed Type6" = Table.TransformColumnTypes(#"Added Custom2",{{"Day", Int64.Type}}),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Changed Type6",{"Weekday", "WeekNo-1"})
+				in
+				    #"Removed Columns2"
+
+	changedProperty = IsHidden
+
+	annotation PBI_Id = 617ea398-b7a1-46ee-8b58-b4f23e01dfa3
+
+	annotation LinkedQueryName = Calendar
+
+	annotation PBI_QueryRelationships = {"columnCount":8,"keyColumnNames":[],"queryRelationships":[{"keyColumnCount":1,"keyColumn":0,"otherKeyColumnIdentity":"Section1/Bank holidays/Changed Type.{Date,0}","KeyColumnCount":1}],"columnIdentities":["Section1/Calendar/Type modifié.{Date,0}","Section1/Calendar/Type modifié.{Year,1}","Section1/Calendar/Colonne personnalisée ajoutée.{Month,2}","Section1/Calendar/Colonne fusionnée insérée.{YearMonth,3}","Section1/Calendar/Changed Type.{Weekday,4}","Section1/Calendar/Changed Type3.{Custom,5}","Section1/Calendar/Changed Type2.{ToBeWorkedDay,6}","Section1/Calendar/Changed Type4.{Week,7}"],"ColumnCount":8,"KeyColumnNames":[],"ColumnIdentities":["Section1/Calendar/Type modifié.{Date,0}","Section1/Calendar/Type modifié.{Year,1}","Section1/Calendar/Colonne personnalisée ajoutée.{Month,2}","Section1/Calendar/Colonne fusionnée insérée.{YearMonth,3}","Section1/Calendar/Changed Type.{Weekday,4}","Section1/Calendar/Changed Type3.{Custom,5}","Section1/Calendar/Changed Type2.{ToBeWorkedDay,6}","Section1/Calendar/Changed Type4.{Week,7}"],"RelationshipInfo":[{"keyColumnCount":1,"keyColumn":0,"otherKeyColumnIdentity":"Section1/Bank holidays/Changed Type.{Date,0}","KeyColumnCount":1}]}
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

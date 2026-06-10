@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "6a70674b664e7dbf836c",
+  "position": {
+    "x": 59.285714285714292,
+    "y": 263.31168831168856,
+    "z": 2000,
+    "height": 28.571428571428573,
+    "width": 276.42857142857144,
+    "tabOrder": 11000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Breakdown",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0fb3b3"
+                    }
+                  },
+                  {
+                    "value": " per area, business stream and consultants"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

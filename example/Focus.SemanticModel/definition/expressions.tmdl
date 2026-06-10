@@ -1,0 +1,215 @@
+expression DevOpsHistory_Months = -300 meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=true]
+	lineageTag: 36cd059c-b06c-4acc-932b-24d034d59ad3
+
+	annotation PBI_ResultType = Number
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression '_Project details' =
+		let
+		    Source = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link")),
+		    Projects_Table = Source{[Item="Projects",Kind="Table"]}[Data],
+		    #"Merged Queries" = Table.NestedJoin(Projects_Table, {"Project"}, #"_Project names mapping", {"Project"}, "_Project details (2)", JoinKind.LeftOuter),
+		    #"Expanded _Project details (2)" = Table.ExpandTableColumn(#"Merged Queries", "_Project details (2)", {"DevOpsProject"}, {"DevOpsProject"})
+		in
+		    #"Expanded _Project details (2)"
+	lineageTag: 57743e34-5372-4ad2-8680-a02c7957f0e2
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression '_Project names mapping' =
+		let
+		    Source = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link")),
+		    DevOpsProjects_Table = Source{[Item="DevOpsProjects",Kind="Table"]}[Data]
+		in
+		    DevOpsProjects_Table
+	lineageTag: 6cec61a8-f503-4e90-80b8-465b3ab7b9fb
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Sharepoint Link - Middle Management files' = "https://fiveforty.sharepoint.com/sites/Interne2-Customersmanagers/Documents%20partages/Customers%20managers/Power%20BI%20files/Fixed%20Price%20Projects.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 72a60dad-f45a-4fa4-a86d-3f0b260151d1
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression 'Focus Sharepoint Link' = "https://fiveforty.sharepoint.com/sites/Middlemanagement-Focus/Documents%20partages/Focus/Power%20BI%20files/Mappings.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 231e3dc7-21cd-493c-a5da-b8c0e62a72ee
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression ArchiveDate = "2025-05-01" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: dfc820f8-5a13-4aeb-be81-07509f8c8dd6
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+expression 'Bank holidays' =
+		let
+		    Source1 = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("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EmwrwbYSbCvJbSXl8tSIRF0rxZXwLX4WsfVrJ5cZUKvUVoJtJdhWgm0lua2ktNUtEnWrFFfCf0zqiiW/K2EZAtVKdSVYV4J1JVhXkutKygWqCNStUlwJxdWMVEpW2cKVUFwJxpVgXAnGleS4kgpXciXqVqmuhO/wmxHLyCpbuBKKK8G4EowrwbiSHFdSLU9ZBOpS6eqUcEL1iKVklS1cCcWVYFwJxpVgXEmOKym/yG9Goq61xJVFIiOr7C1cyRauhOJKMK4E40owriTHlZRb/zwSdatUV8K3/h0Ry8gqW7gSiivBuBKMK8G4khxXUuIqAnWp1FbCt/7dIpaSVbZsJdRWgm0l2FaCbSW5rbTc+ieRKGtVaiultnomq6a2uq1DgFqV4koxrhTjSjGuNMeVlnv/eiTqWqmulO/9k4itvy9pmQG1SnGlGFeKcaUYV5rjSjGuztuVUlxpiSuLRHa70r0lLd3ClVJcKcaVYlwpxpXmuNISVyMSdasUV8o3/1nEMrLqlq2U2kqxrRTbSrGtNLeVlra6RaJuleJKd74N/YylZNUtXSnVlWJdKdaVYl1pristN/9ZJOpaS11pJNJLwN6ilm7pSqmuFOtKsa4U60pzXWm5+a9Hom6V8kr55j+JWHq72tKVUl0p1pViXSnWlea60mrpyiJQl0pXrpQbqkcsNatu6UqprhTrSrGuFOtKc11puXRlkahrpbpSoiu7XyfSn6vq6wyoVaorxbpSrCvFutJcV1ruCrwSdauUV8p5NSOWfBvlMgSqlfJKMa8U80oxrzTnVS95FYGy1U511fm2wFvEUrT2LV11qquOddWxrjrWVc911cttgRKJulaqq0519XxK9nRf4G0dAtVKedUxrzrmVce86jmverV25RGoW6VLV50j6ohY8nWUyxCoVcqrjnnVMa865lXPedUxr/Q8gyiveskrj0T2ibXvLWr1LV51yquOedUxrzrmVc951UtejUjUrVJedb4x0CKWobVv6apTXXWsq4511bGueq6rXn47xS0Sdat07apzRF2xFK19i1ed8qpjXnXMq4551XNe9XJnoEWirrXklUYivQTsLWv1LV51yquOedUxrzrmVc951cudgUck6laprzrfGagRW39TwjIDapXyqmNedcyrjnnVc171ilcWgbpUqqvOdwb2iKVo7Vu86pRXHfOqY151zKue86qXvJqRqGulvOr8h648YuuvUFhmQK1SXXWsq4511bGueq6ro9wYeCXKVg/Kq4PzakYsReuxxauD8urAvDowrw7Mq+NXvPrhfw==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Date = _t, #"Bank holiday name" = _t]),
+		    #"Changed Type" = Table.TransformColumnTypes(Source1,{{"Date", type date}})
+		in
+		    #"Changed Type"
+	lineageTag: 3d980f55-b932-40a4-944d-09e1cea45b98
+	queryGroup: DataImport
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Projects managers' =
+		let
+		    Source = Json.Document(Web.Contents("https://axonaut.com/" & "api/v2/companies?type=customer", [Headers=[userAPIKey=#"ApiKey", page="1"]])),
+		    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+		    #"Expanded Column2" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"id", "name", "creation_date", "address_street", "address_zip_code", "address_city", "address_region", "address_country", "comments", "is_supplier", "is_prospect", "is_customer", "currency", "language", "thirdparty_code", "intracommunity_number", "supplier_thirdparty_code", "siret", "internal_id", "isB2C", "customer_balance", "business_manager", "custom_fields", "categories", "employees", "documents"}, {"Column1.id", "Column1.name", "Column1.creation_date", "Column1.address_street", "Column1.address_zip_code", "Column1.address_city", "Column1.address_region", "Column1.address_country", "Column1.comments", "Column1.is_supplier", "Column1.is_prospect", "Column1.is_customer", "Column1.currency", "Column1.language", "Column1.thirdparty_code", "Column1.intracommunity_number", "Column1.supplier_thirdparty_code", "Column1.siret", "Column1.internal_id", "Column1.isB2C", "Column1.customer_balance", "Column1.business_manager", "Column1.custom_fields", "Column1.categories", "Column1.employees", "Column1.documents"}),
+		    #"Expanded Column1.business_manager" = Table.ExpandRecordColumn(#"Expanded Column2", "Column1.business_manager", {"id", "name", "email"}, {"Column1.business_manager.id", "Column1.business_manager.name", "Column1.business_manager.email"}),
+		    #"Removed Columns" = Table.RemoveColumns(#"Expanded Column1.business_manager",{"Column1.isB2C", "Column1.customer_balance", "Column1.creation_date", "Column1.address_street", "Column1.address_zip_code", "Column1.address_city", "Column1.address_region", "Column1.address_country", "Column1.comments", "Column1.is_supplier", "Column1.is_prospect", "Column1.is_customer", "Column1.currency", "Column1.language", "Column1.thirdparty_code", "Column1.intracommunity_number", "Column1.supplier_thirdparty_code", "Column1.siret", "Column1.custom_fields", "Column1.categories", "Column1.employees", "Column1.documents", "Column1.business_manager.id", "Column1.id", "Column1.business_manager.email"}),
+		    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"Column1.name", "name"}, {"Column1.internal_id", "Internal Id"}, {"Column1.business_manager.name", "Account Manager"}}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"Account Manager", type text}, {"Internal Id", type text}, {"name", type text}}),
+		    #"Added Custom" = Table.AddColumn(#"Changed Type", "Customer Key", each Text.Combine({[name]," - ",[Internal Id]})),
+		    #"Removed Columns1" = Table.RemoveColumns(#"Added Custom",{"name", "Internal Id"}),
+		    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns1",{{"Customer Key", type text}})
+		in
+		    #"Changed Type1"
+	lineageTag: fb406fc1-0d0b-4ef2-911b-24919e07fb7f
+	queryGroup: DataImport
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression ApiKey = "3459234e73e09403694e1b8639b53918040c3459" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 5500c908-2801-497a-9504-ccce6baea805
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+
+expression 'Axonaut Projects' =
+		let
+		    Source = Json.Document(Web.Contents("https://axonaut.com/" & "api/v2/projects",
+		
+		[
+		   Headers=[userAPIKey=#"ApiKey", page="1"]
+		]
+		)),
+		    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+		    #"Expanded Column1" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"name","custom_fields"},  {"Team Project", "custom_fields"}),
+		    #"Expanded custom_fields" = Table.ExpandRecordColumn(#"Expanded Column1", "custom_fields", {"Project manager"}, {"Project manager"}),
+		    #"Replaced Errors" = Table.ReplaceErrorValues(#"Expanded custom_fields", {{"Project manager", ""}}),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Replaced Errors",{{"Project manager", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: d4142594-1101-409a-b1ff-c41d1a4d4925
+	queryGroup: DataImport
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression 'Azure Active directory' = ```
+		let
+		    // ===================================================================================
+		    // Authentication Parameters
+		    // ===================================================================================
+		    clientId     = "d73fe3b7-b675-48b5-bbd6-82ff2a94e581",
+		    clientSecret = "<REPLACE_WITH_AZURE_AD_CLIENT_SECRET>",
+		    tenantId     = "ee7b4ccb-8e30-435c-9368-1fce958df645",
+		    tokenEndpoint= "https://login.microsoftonline.com/" & tenantId & "/oauth2/v2.0/token",
+		    resource     = "https://graph.microsoft.com",
+		
+		    tokenRequestBody = [
+		        client_id     = clientId,
+		        client_secret = clientSecret,
+		        grant_type    = "client_credentials",
+		        scope         = resource & "/.default"
+		    ],
+		    tokenResponse = Json.Document(
+		        Web.Contents(tokenEndpoint, [
+		            Headers = [ #"Content-Type" = "application/x-www-form-urlencoded" ],
+		            Content = Text.ToBinary(Uri.BuildQueryString(tokenRequestBody))
+		        ])
+		    ),
+		    accessToken = tokenResponse[access_token],
+		    authHeader  = [ Authorization = "Bearer " & accessToken ],
+		
+		    // ----------------------------------------
+		    // 2) Recursive Pagination Function
+		    // ----------------------------------------
+		    //   Always call the same base URL, passing $select + optional $skiptoken
+		    GetUsersPage = (skipToken as nullable text) as table =>
+		        let
+		            baseUrl      = "https://graph.microsoft.com/v1.0/users",
+		            pageQuery    = if skipToken = null
+		                           then [ #"$select" = "id,mail" ]
+		                           else [ #"$select" = "id,mail", #"$skiptoken" = skipToken ],
+		            response     = Json.Document(
+		                             Web.Contents(baseUrl,
+		                               [
+		                                 Headers = authHeader,
+		                                 Query   = pageQuery
+		                               ]
+		                             )
+		                           ),
+		            currentRows  = Table.FromRecords(response[value]),
+		
+		            // extract skiptoken from nextLink
+		            nextLink     = try response[#"@odata.nextLink"] otherwise null,
+		            nextToken    = if nextLink <> null
+		                           then Text.AfterDelimiter(nextLink, "$skiptoken=")
+		                           else null,
+		
+		            // recurse if needed
+		            tailTable    = if nextToken <> null 
+		                           then @GetUsersPage(nextToken)
+		                           else #table(type table [id=text, mail=text], {}),
+		
+		            allRows      = Table.Combine({ currentRows, tailTable })
+		        in
+		            allRows,
+		
+		    // ----------------------------------------
+		    // 3) Fetch All Users & Expand Managers
+		    // ----------------------------------------
+		    allUsers        = GetUsersPage(null),
+		
+		    withManagers    = Table.AddColumn(
+		                         allUsers,
+		                         "ManagerRecord",
+		                         each try Json.Document(
+		                                 Web.Contents(
+		                                   "https://graph.microsoft.com/v1.0/users/",
+		                                   [
+		                                     Headers = authHeader,
+		                                     Query   = [ #"$select" = "mail" ],
+		                                     RelativePath = _[id] & "/manager"
+		                                   ]
+		                                 )
+		                               ) otherwise null
+		                       ),
+		
+		    expandedManagers = Table.ExpandRecordColumn(
+		                         withManagers,
+		                         "ManagerRecord",
+		                         {"mail"},
+		                         {"Manager Email"}
+		                       ),
+		    #"Columns removed by Measure Killer"= Table.RemoveColumns(expandedManagers,{"id"})
+		in
+		    #"Columns removed by Measure Killer"
+		```
+	lineageTag: 51652a59-05f0-47f2-a1ca-3160f1dd7af2
+	queryGroup: DataImport
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

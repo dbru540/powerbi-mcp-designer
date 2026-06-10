@@ -1,0 +1,50 @@
+relationship cf50e31d-4394-349a-725f-e7601df160f1
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Calendar.Date
+	toColumn: 'Jo Time Per Location'.Date
+
+relationship AutoDetected_dd1e1425-27c5-41b7-985a-a153b30ead85
+	fromColumn: DevOps_Timesheets.'Team Member'
+	toColumn: Consultants.'Team Member'
+
+relationship a0dcec48-7ca9-7ca4-cb64-1a16a9ba438a
+	isActive: false
+	fromColumn: 'Power BI - All projects'.FixedProjectRoot
+	toColumn: 'Budgeted tickets'.'Work Item Id'
+
+relationship 608af11f-13e1-d794-ba79-f9315d01324c
+	fromColumn: 'Power BI - All projects'.'Team Project'
+	toColumn: Projects.'Project Name'
+
+relationship d8dec254-f385-109d-1595-d5529c830834
+	fromColumn: Budget.'Team Project'
+	toColumn: Projects.'Project Name'
+
+relationship 3dc20f3e-8dd4-bbf3-2ca4-3bc3d94856a9
+	isActive: false
+	fromColumn: Budget.Date
+	toColumn: Calendar.Date
+
+relationship AutoDetected_a7f1ef76-65d3-491c-a886-52f62facc9e2
+	fromColumn: Calendar.Month
+	toColumn: 'Calendar Month'.Month
+
+relationship 0ecb4356-58e8-f30e-f0a4-0a0a5abfd6f1
+	isActive: false
+	fromColumn: 'Budgeted tickets'.'Team Project'
+	toColumn: Projects.'Project Name'
+
+relationship AutoDetected_1e5679f1-94e0-40f4-863e-e43133210cda
+	fromColumn: DevOps_Timesheets.'Work Item Id'
+	toColumn: 'Power BI - All projects'.'Work Item Id'
+
+relationship aa5e6fde-d945-69e9-5fa8-e61932e6fc5b
+	fromColumn: DevOps_Timesheets.RecordDate
+	toColumn: Calendar.Date
+
+relationship bc4cc031-b97c-3028-7197-8c66b1f85cd5
+	isActive: false
+	fromColumn: 'Power BI - All projects'.'Time & Materials Project Root'
+	toColumn: 'Budgeted tickets'.'Work Item Id'
+

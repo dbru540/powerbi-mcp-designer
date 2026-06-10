@@ -1,0 +1,144 @@
+table Consultants
+	lineageTag: d3b80123-b51f-4a3d-a558-1231037fef45
+
+	column 'Team Member'
+		dataType: string
+		lineageTag: bc480b3a-901e-4e7c-a60c-974361d7c62c
+		summarizeBy: none
+		sourceColumn: Team Member
+
+		annotation SummarizationSetBy = Automatic
+
+	column Email
+		dataType: string
+		lineageTag: e64460c2-4390-4df9-9315-a72517a65fcb
+		summarizeBy: none
+		sourceColumn: Email
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Manager Email'
+		dataType: string
+		lineageTag: 7ec37208-3f01-4972-bbbf-1e2fe6af466e
+		summarizeBy: none
+		sourceColumn: Manager Email
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Manager Team Member'
+		dataType: string
+		lineageTag: 61bbcbc4-d171-4d8a-adbc-9bf120976cd8
+		summarizeBy: none
+		sourceColumn: Manager Team Member
+
+		annotation SummarizationSetBy = Automatic
+
+	column Hierarchy = PATH(Consultants[Team Member],Consultants[Manager Team Member])
+		lineageTag: 6d0c5d27-2358-4331-8ae2-b49850a88a3f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvl1 = PATHITEM(Consultants[Hierarchy],1)
+		lineageTag: 3c4cc1df-5055-4337-8cad-cbbf6490e26b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		isHidden
+		lineageTag: 559271c2-cd77-4db2-bf23-cff1253fe1cf
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Activity
+		dataType: string
+		lineageTag: 88a0be69-4232-486a-8035-71b132cc6934
+		summarizeBy: none
+		sourceColumn: Activity
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Consultants = m
+		mode: import
+		queryGroup: DataModel
+		source = ```
+				let
+				    // 1. Load and Clean Consultant Data from Excel
+				    Source_Consultants = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link"), null, true){[Item="Consultants",Kind="Table"]}[Data],
+				    Cleaned_Consultants = Table.SelectRows(Source_Consultants, each [TeamMember] <> null and [TeamMember] <> "Customer Expenses"),
+				    
+				    // 2. Get Distinct Team Members
+				    Grouped_By_TeamMember = Table.Group(Cleaned_Consultants, {"TeamMember", "Employee or contractor ?", "Activity", "Category"}, {{"Count", each Table.RowCount(_), type number}}),
+				    Distinct_TeamMembers = Table.RemoveColumns(Grouped_By_TeamMember, "Count"),
+				    
+				    // This section determines active consultants
+				    Source = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link"), null, true),
+				    Consultants_Direct_Costs_Sheet = Source{[Item="Consultants",Kind="Table"]}[Data],
+				    #"Filtered Rows1" = Table.SelectRows(Consultants_Direct_Costs_Sheet, each [EndDate] > DateTime.Date(DateTime.LocalNow())),
+				    #"Filtered Rows2" = Table.SelectRows(#"Filtered Rows1", each [StartDate] <= DateTime.Date(DateTime.LocalNow())),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Filtered Rows2",{{"TeamMember", type text}, {"StartDate", type date}, {"EndDate", type date}}),
+				    #"Removed Duplicates" = Table.Distinct(#"Changed Type2"),
+				    #"Filtered Rows" = Table.SelectRows(#"Removed Duplicates", each ([TeamMember] <> null and [TeamMember] <> "Customer Expenses")),
+				    #"ActiveConsultants" = Table.AddColumn(#"Filtered Rows", "Active", each "Active"),
+				
+				    // 3. Merge with Active Consultant Status
+				    Merged_With_ActiveStatus = Table.NestedJoin(
+				        Distinct_TeamMembers, {"TeamMember"},
+				        #"ActiveConsultants", {"TeamMember"},
+				        "ActiveStatusData", JoinKind.LeftOuter
+				    ),
+				    Expanded_ActiveStatus = Table.ExpandTableColumn(Merged_With_ActiveStatus, "ActiveStatusData", {"Active"}, {"State"}),
+				
+				    // 4. Fetch and Process ALL Azure DevOps Users (with Paging)
+				    Users = Json.Document(Web.Contents("https://fiveforty.timehub.7pace.com/api/rest/users?api-version=3.0")),
+				    #"Converted to Table" = Record.ToTable(Users),
+				    #"Expanded Value" = Table.ExpandListColumn(#"Converted to Table", "Value"),
+				    #"Expanded Value1" = Table.ExpandRecordColumn(#"Expanded Value", "Value", {"email", "name"}, {"Email", "Team Member"}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Expanded Value1","adelahaye.tmp@fiveforty.fr","adelahaye@fiveforty.fr",Replacer.ReplaceText,{"Email"}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Replaced Value",{"Name"}),
+				    #"Removed Duplicates1" = Table.Distinct(#"Removed Columns"),
+				    // This section enriches ADO data with Manager Info from another query
+				    Buffer = Table.Buffer(#"Azure Active directory"),
+				    #"Merged Queries2" = Table.NestedJoin(#"Removed Duplicates1", {"Email"}, Buffer, {"mail"}, "Azure Active directory", JoinKind.LeftOuter),
+				    #"Expanded Azure Active directory1" = Table.ExpandTableColumn(#"Merged Queries2", "Azure Active directory", {"Manager Email"}, {"Manager Email"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Expanded Azure Active directory1", {"Manager Email"}, #"Expanded Azure Active directory1", {"Email"}, "Expanded Azure Active directory1", JoinKind.LeftOuter),
+				    #"Expanded Expanded Azure Active directory1" = Table.ExpandTableColumn(#"Merged Queries", "Expanded Azure Active directory1", {"Team Member"}, {"Manager Team Member"}),
+				
+				    // 5. Merge Consultant Data with the full, paged Azure DevOps Data
+				    Merged_With_AzureDevOps = Table.NestedJoin(
+				        Expanded_ActiveStatus, {"TeamMember"},
+				        #"Expanded Expanded Azure Active directory1", {"Team Member"},
+				        "AzureDevOpsData", JoinKind.LeftOuter
+				    ),
+				    Expanded_AzureDevOps = Table.ExpandTableColumn(
+				        Merged_With_AzureDevOps, "AzureDevOpsData",
+				        {"Email","Manager Team Member", "Manager Email"},
+				        {"Email","Manager Team Member", "Manager Email"}
+				    ),
+				
+				    // 6. Final Cleanup and Formatting
+				    Replaced_Nulls = Table.ReplaceValue(Expanded_AzureDevOps, null, "Inactive", Replacer.ReplaceValue, {"State"}),
+				    Removed_ExtraColumns = Table.RemoveColumns(Replaced_Nulls, {"Employee or contractor ?", "Category"}),
+				    Distinct_Rows = Table.Distinct(Removed_ExtraColumns, {"TeamMember"}),
+				    Set_DataTypes = Table.TransformColumnTypes(
+				        Distinct_Rows, {
+				            {"TeamMember", type text},
+				            {"Email", type text},
+				            {"State", type text}
+				        }
+				    ),
+				    Renamed_Columns = Table.RenameColumns(Set_DataTypes, {{"TeamMember", "Team Member"}}),
+				    Sorted_Table = Table.Sort(Renamed_Columns, {{"Team Member", Order.Ascending}}),
+				    #"Changed Type" = Table.TransformColumnTypes(Sorted_Table,{{"Manager Email", type text}})
+				in
+				    #"Changed Type"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Exception
+

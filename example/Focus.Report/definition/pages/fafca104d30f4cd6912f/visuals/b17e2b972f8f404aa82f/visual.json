@@ -1,0 +1,76 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "b17e2b972f8f404aa82f",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "height": 350,
+    "width": 1280
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Calendar Month"
+                    }
+                  },
+                  "Property": "MonthText"
+                }
+              },
+              "queryRef": "Calendar Month.MonthText",
+              "nativeQueryRef": "Month"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Budgeted tickets"
+                    }
+                  },
+                  "Property": "Fixed price - Margin"
+                }
+              },
+              "queryRef": "Budgeted tickets.Margin",
+              "nativeQueryRef": "Margin"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Monthly Margin Trend'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

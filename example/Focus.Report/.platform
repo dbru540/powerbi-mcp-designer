@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Focus"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "79ad4b06-d847-41c2-9f2f-6abc9fc46e45"
+  }
+}

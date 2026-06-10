@@ -1,0 +1,7 @@
+role 'PwC - Project priced'
+	modelPermission: read
+
+	tablePermission Projects = CONTAINSSTRING(Projects[Email PowerBI], userprincipalname())
+
+	annotation PBI_Id = 2be7f461514a4183a5bafda797730bf1
+

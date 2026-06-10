@@ -1,0 +1,38 @@
+table 'Jo Time Per Location'
+	lineageTag: 24868cd3-e2a6-4255-9293-c3aed2cf7429
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 593e818f-5a3c-4728-9fee-a83a5b5dee96
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Country
+		dataType: string
+		lineageTag: 8b507520-addf-4c89-8834-054bc9efb81c
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Jo Time Per Location' = m
+		mode: import
+		queryGroup: DataModel
+		source =
+				let
+				    Source = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link"), null, true),
+				    Timesheets_Table = Source{[Item="JoTimePerLocation",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Timesheets_Table,{{"Date", type date}, {"Country", type text}, {"Location", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Location"})
+				    in
+				     #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

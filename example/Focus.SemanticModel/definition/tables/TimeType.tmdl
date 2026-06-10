@@ -1,0 +1,30 @@
+table TimeType
+	isHidden
+	lineageTag: 30e7bac8-e197-4ce3-83b3-e58ef85bf263
+
+	column Time
+		dataType: string
+		isHidden
+		lineageTag: 4c25ba7c-f7a3-4c9d-8814-082e78c29ff2
+		summarizeBy: none
+		sourceColumn: Time
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition TimeType-6028c38c-bbe8-49c2-9690-2d00997ce60b = m
+		mode: import
+		queryGroup: DataModel
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCkgtUsjILy1SitWBcFISK8FszzyFR01rlGJjAQ==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Time = _t])
+				in
+				    Source
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

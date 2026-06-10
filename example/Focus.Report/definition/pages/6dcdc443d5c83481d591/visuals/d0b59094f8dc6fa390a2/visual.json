@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "d0b59094f8dc6fa390a2",
+  "position": {
+    "x": 533.33333333333337,
+    "y": 19.166666666666668,
+    "z": 9000,
+    "height": 150,
+    "width": 352.5,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Budgeted tickets"
+                    }
+                  },
+                  "Property": "Fixed price - Actual percentage - estimate of closed projects"
+                }
+              },
+              "queryRef": "Budgeted tickets.Fixed price - Actual percentage - estimate of closed projects",
+              "nativeQueryRef": "Fixed price - Actual percentage - estimate of closed projects"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Budgeted tickets"
+                  }
+                },
+                "Property": "Fixed price - Actual percentage - estimate of closed projects"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,40 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup DataModel
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup DataImport
+
+	annotation PBI_QueryGroupOrder = 1
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Projects","Calendar","Calendar Month","Bank holidays","Projects managers","Azure Active directory","Axonaut Projects","DevOps_Timesheets","Last update","DevOpsHistory_Months","Power BI - All projects","TimeType","_Project details","_Project names mapping","Budgeted tickets","Sharepoint Link - Middle Management files","Budget","Jo Time Per Location","Focus Sharepoint Link","ArchiveDate","Consultants","ApiKey"]
+
+annotation PBI_ProTooling = ["WebModelingEdit","DevMode"]
+
+ref table Projects
+ref table Calendar
+ref table DevOps_Timesheets
+ref table 'Last update'
+ref table TimeType
+ref table 'Budgeted tickets'
+ref table Budget
+ref table 'Jo Time Per Location'
+ref table Consultants
+ref table 'Power BI - All projects'
+ref table 'Calendar Month'
+
+ref role 'Customer - Times off'
+ref role Customer
+ref role 'PwC - Project priced'
+
+ref cultureInfo en-US
+

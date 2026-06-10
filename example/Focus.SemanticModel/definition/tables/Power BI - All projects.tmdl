@@ -1,0 +1,343 @@
+table 'Power BI - All projects'
+	lineageTag: 662fbb93-5f47-4266-8328-bb5c3b408739
+
+	column 'Team Project'
+		dataType: string
+		lineageTag: c459d597-9155-40ab-be95-019d26797aeb
+		summarizeBy: none
+		sourceColumn: Team Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area lvl 2'
+		dataType: string
+		lineageTag: 096cdcb7-e3d5-4905-99b5-3f875c9f49c7
+		summarizeBy: none
+		sourceColumn: Area lvl 2
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area lvl 3'
+		dataType: string
+		lineageTag: 1585dc55-2ae4-45e5-98b8-f63198d329eb
+		summarizeBy: none
+		sourceColumn: Area lvl 3
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Item Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: 66053660-1b47-4c0b-8c97-24247831c7e1
+		summarizeBy: none
+		sourceColumn: Work Item Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Title
+		dataType: string
+		lineageTag: 4e9af792-388e-4608-b8e0-5c949d77b4ee
+		summarizeBy: none
+		sourceColumn: Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: fa2e5502-a940-4282-b020-adc34e6fc2bd
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parent Work Item Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: 6edff4c3-75ef-4fb8-9d67-1c1a741736ab
+		summarizeBy: count
+		sourceColumn: Parent Work Item Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Closed Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b94dd3f5-a9f9-4be9-92cd-b6579aeed2f3
+		summarizeBy: none
+		sourceColumn: Closed Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Resolved Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 590e5e15-8621-43f4-bee6-35ee24f2aa72
+		summarizeBy: none
+		sourceColumn: Resolved Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Activity
+		dataType: string
+		lineageTag: 14789f38-aa86-4539-a6d9-1922cfa9912a
+		summarizeBy: none
+		sourceColumn: Activity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Changed Date'
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: 028cfc45-416f-4c34-92fd-8ce0dabfe285
+		summarizeBy: none
+		sourceColumn: Changed Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Item'
+		dataType: string
+		lineageTag: ec5465ab-83c3-440c-bd19-f6b7a4e9e5dd
+		summarizeBy: none
+		sourceColumn: Work Item
+
+		annotation SummarizationSetBy = Automatic
+
+	column Link
+		dataType: string
+		lineageTag: 971c63c5-b82d-4a4c-9735-5b0ded0907b0
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: Link
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fixed priced tickets.Work Item Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: cf17048e-9d38-49db-bc5d-e693b4ea367f
+		summarizeBy: count
+		sourceColumn: Fixed priced tickets.Work Item Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parent Title'
+		dataType: string
+		lineageTag: 961d5a44-d41c-4dc8-992f-df9f898ebef5
+		summarizeBy: none
+		sourceColumn: Parent Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column FixedProjectRoot = ```
+			
+			IF(
+			    'Power BI - All projects'[Area lvl 2] <> "Project_Priced",
+			    BLANK(),
+			    VAR thisPath =
+			        PATH(
+			            'Power BI - All projects'[Work Item Id],
+			            'Power BI - All projects'[Parent Work Item Id]
+			        )
+			    VAR pathLen = PATHLENGTH( thisPath )
+			    VAR picks =
+			        ADDCOLUMNS(
+			            GENERATESERIES( 1, pathLen, 1 ),
+			            "AncestorId", PATHITEM( thisPath, [Value], INTEGER ),
+			            "FixedId",
+			                LOOKUPVALUE(
+			                    'Power BI - All projects'[Fixed priced tickets.Work Item Id],
+			                    'Power BI - All projects'[Work Item Id],
+			                    PATHITEM( thisPath, [Value], INTEGER )
+			                )
+			        )
+			    RETURN
+			        MAXX( picks, [FixedId] )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 3c4ddb0d-a5a1-44a0-9ac9-56896b4f38fd
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Hierarchy = PATH('Power BI - All projects'[Work Item],'Power BI - All projects'[Parent Work Item])
+		lineageTag: 2be29e47-a7a0-4e5f-b92c-a7db208162bf
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parent Work Item' = IF ( 'Power BI - All projects'[Parent Work Item Id] = BLANK() || 'Power BI - All projects'[Team Project]="OLD-CityzMedia",BLANK(), 'Power BI - All projects'[Parent Work Item Id] & " - " & 'Power BI - All projects'[Parent Title])
+		lineageTag: 4782fa93-f20e-4018-98fa-5578aa947d48
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL1 = PATHITEM('Power BI - All projects'[Hierarchy],1)
+		lineageTag: 4c866616-6940-4d9e-a19b-6af8ac7f25da
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL2 = PATHITEM('Power BI - All projects'[Hierarchy],2)
+		lineageTag: 5d0decc8-5949-4f3e-8c70-053b6312cbf6
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL3 = PATHITEM('Power BI - All projects'[Hierarchy],3)
+		lineageTag: f9828aa8-457e-4f2c-b365-23e7a4e6cc45
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL5 = PATHITEM('Power BI - All projects'[Hierarchy],5)
+		lineageTag: 95870d35-20f3-4e6a-92e1-0059a7038226
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL6 = PATHITEM('Power BI - All projects'[Hierarchy],6)
+		lineageTag: 4cd26d6c-885f-4807-a9cd-8f12b1a8c34d
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL4 = PATHITEM('Power BI - All projects'[Hierarchy],4)
+		lineageTag: 6641a4dc-3397-46ad-96d7-6828628158ff
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL7 = PATHITEM('Power BI - All projects'[Hierarchy],7)
+		lineageTag: 528fed86-71a3-41f3-a2d3-9e227a943532
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HierarchyLvL8 = PATHITEM('Power BI - All projects'[Hierarchy],8)
+		lineageTag: 7009734e-bed1-4ad0-8d94-7040fbd59312
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Time & Materials Project Root' =
+			
+			IF(
+			    'Power BI - All projects'[Area lvl 2] = "Project_Priced",
+			    BLANK(),
+			    VAR thisPath =
+			        PATH(
+			            'Power BI - All projects'[Work Item Id],
+			            'Power BI - All projects'[Parent Work Item Id]
+			        )
+			    VAR pathLen = PATHLENGTH( thisPath )
+			    VAR picks =
+			        ADDCOLUMNS(
+			            GENERATESERIES( 1, pathLen, 1 ),
+			            "AncestorId", PATHITEM( thisPath, [Value], INTEGER ),
+			            "FixedId",
+			                LOOKUPVALUE(
+			                    'Power BI - All projects'[Fixed priced tickets.Work Item Id],
+			                    'Power BI - All projects'[Work Item Id],
+			                    PATHITEM( thisPath, [Value], INTEGER )
+			                )
+			        )
+			    RETURN
+			        MAXX( picks, [FixedId] )
+			)
+		formatString: 0
+		lineageTag: dbe775f5-2e83-4168-9594-37580885a1ff
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Power BI - All projects' = m
+		mode: import
+		queryGroup: DataModel
+		source =
+				let
+				    // 1) Pull your Analytics view
+				    Source = VSTS.AnalyticsViews("fiveforty", "interne", []){[Id="51f6547a-614b-4054-8346-7ec03e65967e", Kind="Table"]}[Data],
+				    // 2) Replace pipe in Title and cast all dates at once
+				    Cleaned = Table.TransformColumnTypes(
+				        Table.ReplaceValue(Source, "|", "/", Replacer.ReplaceText, {"Title"}),
+				        {
+				            {"Changed Date", type datetime},
+				            {"Created Date", type date},
+				            {"Closed Date",   type date},
+				            {"Resolved Date", type date}
+				        }
+				    ),
+				
+				    // 4) Add merged “Work Item” column & split your Area Path
+				    WithWorkItem = Table.AddColumn(
+				        Cleaned,
+				        "Work Item",
+				        each Number.ToText([Work Item Id]) & " - " & [Title],
+				        type text
+				    ),
+				    SplitAreaPath = Table.SplitColumn(
+				        WithWorkItem,
+				        "Area Path",
+				        Splitter.SplitTextByDelimiter("\", QuoteStyle.Csv),
+				        {"Team Project","Area lvl 2","Area lvl 3"}
+				    ),
+				
+				    // 5) Build your DevOps link
+				    WithLink = Table.AddColumn(
+				        SplitAreaPath,
+				        "Link",
+				        each
+				            "https://dev.azure.com/fiveforty/" &
+				            [Team Project] &
+				            "/_workitems/edit/" &
+				            Number.ToText([Work Item Id]),
+				        type text
+				    ),
+				
+				    // 6) Left‐join to your fixed-price tickets and expand its ID
+				    JoinedFixed = Table.NestedJoin(
+				        WithLink,
+				        "Work Item Id",
+				        #"Budgeted tickets",
+				        "Work Item Id",
+				        "FixedTickets",
+				        JoinKind.LeftOuter
+				    ),
+				    ExpandedFixed = Table.ExpandTableColumn(
+				        JoinedFixed,
+				        "FixedTickets",
+				        {"Work Item Id"},
+				        {"Fixed priced tickets.Work Item Id"}
+				    ),
+				
+				    // 7) Self-join on Parent→Work Item to pull in the parent’s Title
+				    ParentJoined = Table.NestedJoin(
+				        ExpandedFixed,
+				        {"Parent Work Item Id"},
+				        ExpandedFixed,
+				        {"Work Item Id"},
+				        "ParentRows",
+				        JoinKind.LeftOuter
+				    ),
+				    Result = Table.ExpandTableColumn(
+				        ParentJoined,
+				        "ParentRows",
+				        {"Title"},
+				        {"Parent Title"}
+				    ),
+				    #"Removed Duplicates" = Table.Distinct(Result),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Removed Duplicates",{"Work Item Type","Assigned To","Priority","Created Date"})
+				in
+				    #"Columns removed by Measure Killer"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

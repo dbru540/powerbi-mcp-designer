@@ -1,0 +1,283 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY19SU06",
+      "reportVersionAtImport": {
+        "visual": "1.8.41",
+        "report": "2.0.41",
+        "page": "1.3.41"
+      },
+      "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "FiveForty5580288424017721.json",
+      "reportVersionAtImport": {
+        "visual": "1.8.44",
+        "report": "2.0.44",
+        "page": "1.3.44"
+      },
+      "type": "RegisteredResources"
+    }
+  },
+  "filterConfig": {
+    "filterSortOrder": "Custom"
+  },
+  "objects": {
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "true"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "publicCustomVisuals": [
+    "acterysReportingxPnA",
+    "AdvancedColumnBarChart149CBDF1945A4455952D90C68DD649AA",
+    "calendarVisual74934D05B71F4C31B0F79D925EE89638",
+    "cdRegressionChartFEDFE3FECE5F4724A9EAF1D1F0D509A3",
+    "cylindricalGauge73A12A442345453EB69B593649C3A341",
+    "GanttChart4C3653EFFFEB4E7DA5A699CE198391E2",
+    "GanttChartByMAQSoftware1448688115701",
+    "HierarchicalTreeF39DAE8D57A743EF89F5C3809DEE2B67",
+    "HierarchySlicer1458836712039",
+    "HorizontalFunnel1449177164235",
+    "InforiverCharts582F6C55AB6442EF8FA129089285CB47",
+    "kpiTicker492C9305B9464241B52382527F977DE1",
+    "linearGauge2EBA8C0A99F94BF297BCCB1CF5427E68",
+    "overlappingcolumnchart294CA4C4E467CD956C919E26EF459300",
+    "paretoEDD8E69761BA4B7BB3AA6D813990D7BF",
+    "PBI_3AGSystems_0B9C9FBA_15A2_4A94_8AE4_8F778869B192",
+    "PBI_CV_3C80B1F2_09AF_4123_8E99_C3CBC46B23E0",
+    "PBI_CV_9272D058_BEA0_476A_B090_A712545F92FA",
+    "planningGridA86B787D407F4AE99B016A8E5AC0A27E",
+    "timelineD7EACB3A04E64A5FA9D86F6E035F3523",
+    "variance8E4BB1B41A8942A7B897C7014A6E1F56",
+    "waterfall6C9ED82ABD1F44C4A0D590CE01EB5EE7",
+    "wishyoulizationbarchartrace",
+    "wishyoulizationwalkers",
+    "zebraBiCards2C860CFAA9944091B75F0DBD117F20FA"
+  ],
+  "resourcePackages": [
+    {
+      "name": "AdvancedColumnBarChart149CBDF1945A4455952D90C68DD649AA",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "AdvancedColumnBarChart149CBDF1945A4455952D90C68DD649AA.pbiviz.json",
+          "path": "AdvancedColumnBarChart149CBDF1945A4455952D90C68DD649AA.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "calendarVisual74934D05B71F4C31B0F79D925EE89638",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "calendarVisual74934D05B71F4C31B0F79D925EE89638.pbiviz.json",
+          "path": "calendarVisual74934D05B71F4C31B0F79D925EE89638.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "CalendarVisualA45056645E4E428B9D26EF971839A6B5",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "CalendarVisualA45056645E4E428B9D26EF971839A6B5.pbiviz.json",
+          "path": "CalendarVisualA45056645E4E428B9D26EF971839A6B5.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "GanttChart4C3653EFFFEB4E7DA5A699CE198391E2",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "GanttChart4C3653EFFFEB4E7DA5A699CE198391E2.pbiviz.json",
+          "path": "GanttChart4C3653EFFFEB4E7DA5A699CE198391E2.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "GanttChartByMAQSoftware1448688115701",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "GanttChartByMAQSoftware1448688115701.pbiviz.json",
+          "path": "GanttChartByMAQSoftware1448688115701.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "HierarchicalTreeF39DAE8D57A743EF89F5C3809DEE2B67",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "HierarchicalTreeF39DAE8D57A743EF89F5C3809DEE2B67.pbiviz.json",
+          "path": "HierarchicalTreeF39DAE8D57A743EF89F5C3809DEE2B67.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "HierarchySlicer1458836712039",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "HierarchySlicer1458836712039.pbiviz.json",
+          "path": "HierarchySlicer1458836712039.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "linearGauge2EBA8C0A99F94BF297BCCB1CF5427E68",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "linearGauge2EBA8C0A99F94BF297BCCB1CF5427E68.pbiviz.json",
+          "path": "linearGauge2EBA8C0A99F94BF297BCCB1CF5427E68.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "PBI_CV_3C80B1F2_09AF_4123_8E99_C3CBC46B23E0",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "PBI_CV_3C80B1F2_09AF_4123_8E99_C3CBC46B23E0.pbiviz.json",
+          "path": "PBI_CV_3C80B1F2_09AF_4123_8E99_C3CBC46B23E0.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "textFilter25A4896A83E0487089E2B90C9AE57C8A",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "textFilter25A4896A83E0487089E2B90C9AE57C8A.pbiviz.json",
+          "path": "textFilter25A4896A83E0487089E2B90C9AE57C8A.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "wishyoulizationbarchartrace",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "wishyoulizationbarchartrace.pbiviz.json",
+          "path": "wishyoulizationbarchartrace.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "wishyoulizationwalkers",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "wishyoulizationwalkers.pbiviz.json",
+          "path": "wishyoulizationwalkers.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "WordCloud1447959067750",
+      "type": "CustomVisual",
+      "items": [
+        {
+          "name": "WordCloud1447959067750.pbiviz.json",
+          "path": "WordCloud1447959067750.pbiviz.json",
+          "type": "CustomVisualMetadata"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "2025-06-10_14-59-0329693445723803157.jpg",
+          "path": "2025-06-10_14-59-0329693445723803157.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "2025-06-10_19-49-204166557638841517.jpg",
+          "path": "2025-06-10_19-49-204166557638841517.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "2025-06-10_19-49-5819708698410521552.jpg",
+          "path": "2025-06-10_19-49-5819708698410521552.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "2025-06-10_19-49-588045808087417587.jpg",
+          "path": "2025-06-10_19-49-588045808087417587.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "2025-06-10_19-49-589936564066043289.jpg",
+          "path": "2025-06-10_19-49-589936564066043289.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "2025-06-11_16-50-335217148787700067.jpg",
+          "path": "2025-06-11_16-50-335217148787700067.jpg",
+          "type": "Image"
+        },
+        {
+          "name": "FiveForty5580288424017721.json",
+          "path": "FiveForty5580288424017721.json",
+          "type": "Image"
+        },
+        {
+          "name": "logo_high_(1)4881384213490376.jpg",
+          "path": "logo_high_(1)4881384213490376.jpg",
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "CY19SU06",
+          "path": "BaseThemes/CY19SU06.json",
+          "type": "BaseTheme"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "useEnhancedTooltips": true
+  },
+  "slowDataSourceSettings": {
+    "isCrossHighlightingDisabled": false,
+    "isSlicerSelectionsButtonEnabled": false,
+    "isFilterSelectionsButtonEnabled": false,
+    "isFieldWellButtonEnabled": false,
+    "isApplyAllButtonEnabled": false
+  }
+}

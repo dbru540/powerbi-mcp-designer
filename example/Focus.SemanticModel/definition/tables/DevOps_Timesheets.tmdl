@@ -1,0 +1,349 @@
+table DevOps_Timesheets
+	lineageTag: a1c5434f-1596-405a-8fae-84366adc09e1
+
+	measure RecordedHours = CALCULATE(SUM(DevOps_Timesheets[PeriodLength])/3600)
+		formatString: 0.0
+		lineageTag: 32f1c501-a269-477b-8e07-0e7f18890c76
+
+		changedProperty = FormatString
+
+	measure Time = ```
+			
+			
+			var _timetype = SELECTEDVALUE(TimeType[Time])
+			RETURN
+			
+			IF(_timetype = "Per hour",
+			    [BillableHours],
+			    IF( _timetype = "Per day",IF([BillableHours]=0,0,
+			    CALCULATE([BillableHours]/8)), 
+			
+			[Billable amount]))
+			
+			```
+		formatString: #,0
+		lineageTag: 6c9b0ff1-9eac-423d-a432-ee5d2f1fb821
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Billable amount' =
+			
+			CALCULATE(SUMX(DevOps_Timesheets,DevOps_Timesheets[Hourly price]*DevOps_Timesheets[BillablePeriodLength]/3600))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 8c667fa5-b47e-4b4e-bba5-434cd3e881ed
+
+	measure 'Internal Off Time with zero' =
+			
+			
+			VAR StartOfCurrentMonth = DATE(YEAR(TODAY()),MONTH(TODAY()),1)
+			
+			VAR HoursCalc =
+			    CALCULATE (
+			        [RecordedHours],FILTER('Calendar','Calendar'[Date]>=StartOfCurrentMonth),
+			        FILTER('Power BI - All projects','Power BI - All projects'[Parent Work Item Id] = 1602 && 'Power BI - All projects'[Work Item Id] <> 440)
+			)
+			
+			RETURN
+			    COALESCE( HoursCalc,0)
+		lineageTag: 38279773-0d41-4281-b514-c85fe91d3488
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Internal Off Time Icon' =
+			
+			
+			
+			IF([Day measure] = 0, BLANK(),IF([Internal Off Time with zero]=0,BLANK(),IF([Internal Off Time with zero]=4,"CircleHalf",IF([Internal Off Time with zero]<4,"Circle25",IF([Internal Off Time with zero]>6 ,"CircleFilled","Circle75")))))
+		lineageTag: fccc9014-a7e6-4cff-9277-b7cba55a9645
+
+	measure 'Internal Off Time Color' = ```
+			
+			
+			VAR _date = FIRSTDATE('Calendar'[Date])
+			
+			RETURN
+			
+			IF(   DATEDIFF(_date,today(),DAY)=0,"#22a7f0",IF(   [IsABankHoliday]=0,"#beb9db",IF([ToBeWorkedDay]=0,"#E1E1E1","2B2B2B"))
+			)
+			
+			
+			```
+		lineageTag: 5a1803c8-404a-413f-a475-0680802e1dec
+
+	measure ToBeWorkedDay = CALCULATE(SUM('Calendar'[ToBeWorkedDay]))
+		formatString: 0
+		lineageTag: 0af87d00-3c29-4734-ae25-4499e916c5f1
+
+	measure IsABankHoliday = CALCULATE(SUM('Calendar'[NotABankHoliday]))
+		formatString: 0
+		lineageTag: ab649931-26da-4bd5-ae10-d72305b00318
+
+	measure 'Internal Off Time - days' =
+			calculate([RecordedHours]/8,'Power BI - All projects'[Parent Work Item Id]=1602 && 'Power BI - All projects'[Work Item Id]<>440
+			)
+		lineageTag: 8ae890b1-73b8-457b-9e69-5259863b9ab4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure BillableHours =
+			
+			CALCULATE(SUM(DevOps_Timesheets[BillablePeriodLength])/3600)
+		displayFolder: 1 - Measures
+		lineageTag: 96554c84-84f3-4ab4-9096-17660e73e747
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Time Final' = ```
+			
+			
+			var _timetype = SELECTEDVALUE(TimeType[Time])
+			RETURN
+			
+			IF(_timetype = "Per hour",
+			    [BillableHours],
+			    IF( _timetype = "Per day",[BillableHours]/8, 
+			
+			[Billable amount]))
+			```
+		formatString: #,0.00
+		lineageTag: 65322aec-a14e-4dbd-9a65-6e5ad9b53190
+
+	measure 'Time entries on already billed work items' = ```
+			
+			CALCULATE (
+			    COUNTROWS('DevOps_Timesheets'),
+			    FILTER (
+			        'DevOps_Timesheets',
+			        VAR ResolvedDate = RELATED('Power BI - All Projects'[Resolved Date])
+			        VAR ClosedDate = RELATED('Power BI - All Projects'[Closed Date])
+			        VAR EffectiveClose =
+			            IF (
+			                ISBLANK(ClosedDate),
+			                ResolvedDate,
+			                IF (
+			                    ISBLANK(ResolvedDate),
+			                    ClosedDate,
+			                    MAX(ClosedDate, ResolvedDate)
+			                )
+			            )
+			        RETURN
+			            NOT ISBLANK(EffectiveClose) &&
+			            EOMONTH('DevOps_Timesheets'[RecordDate], 0) > EOMONTH(EffectiveClose, 0)
+			    )
+			)
+			
+			
+			```
+		formatString: 0
+		displayFolder: 1 - Measures
+		lineageTag: 4d50168a-053e-4f9a-9ed6-5a9da0c141bb
+
+	measure 'Billable (All Projects)' = ```
+			
+			CALCULATE(
+			    [Billable Amount],
+			    ALLSELECTED(Projects[Project Name])
+			)
+			
+			```
+		displayFolder: 1 - Measures
+		lineageTag: 7b37b113-6828-4f09-9c9b-a2d03794c278
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Billable (Linked Only)' =
+			
+			CALCULATE(
+			  [Billable Amount],ALL(Projects),ALL('Power BI - All projects'),                            // your base SUMX measure
+			  FILTER(
+			    DevOps_Timesheets,                             // iterate every timesheet row
+			    NOT ISBLANK(                                   // keep only those...
+			      RELATED( 'Power BI - All projects'[Work Item Id] )
+			    )
+			  )
+			)
+		displayFolder: 1 - Measures
+		lineageTag: f1b0290a-65da-4a3a-9470-a83a4d3a9d47
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Compare = [Billable (All Projects)] - [Billable (Linked Only)]
+		displayFolder: 1 - Measures
+		lineageTag: 3b94a091-01d8-416a-8014-b85b830a062f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Recorded amount' =
+			
+			CALCULATE(SUMX(DevOps_Timesheets,DevOps_Timesheets[Hourly price]*DevOps_Timesheets[RecordedHours]))
+		lineageTag: 28d1c703-8da7-404a-9c30-49d640c68a70
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PeriodLength
+		dataType: int64
+		formatString: 0
+		lineageTag: 9dee6ec3-57f9-40c8-8633-ae1b9f850bb3
+		summarizeBy: sum
+		sourceColumn: PeriodLength
+
+		annotation SummarizationSetBy = Automatic
+
+	column Comment
+		dataType: string
+		lineageTag: 2b50e6e3-366c-4ddd-86fb-a15739a588ef
+		summarizeBy: none
+		sourceColumn: Comment
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillablePeriodLength
+		dataType: double
+		formatString: 0
+		lineageTag: 1192fecf-f004-4e06-b003-56e733987046
+		summarizeBy: sum
+		sourceColumn: BillablePeriodLength
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Team Member'
+		dataType: string
+		lineageTag: a35960bc-d46c-47f8-be08-4377028b07fc
+		summarizeBy: none
+		sourceColumn: Team Member
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Hourly Price'
+		dataType: double
+		lineageTag: d4392746-10ac-4963-9159-9fa5deb9cb1c
+		summarizeBy: sum
+		sourceColumn: Hourly Price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IsDeleted
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: de48ca3b-1f5e-496a-90d5-667f27c8dff4
+		summarizeBy: none
+		sourceColumn: IsDeleted
+
+		annotation SummarizationSetBy = Automatic
+
+	column JoinKey
+		dataType: string
+		lineageTag: 4e4b4625-db27-4344-8c67-167b6c72eb3f
+		summarizeBy: none
+		sourceColumn: JoinKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Item Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: ec0c6b62-34bf-4e2f-b2d3-e3c7967a579b
+		summarizeBy: none
+		sourceColumn: Work Item Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column RecordDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 573698fe-9ee1-4652-9d1b-8586748a79fb
+		summarizeBy: none
+		sourceColumn: RecordDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Timestamp
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e3778e3e-55af-46ea-9f6b-8418029df939
+		summarizeBy: none
+		sourceColumn: Timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DevOps_Timesheets-5b57c917-715c-47e2-bd68-7b3d4f38fed4 = m
+		mode: import
+		queryGroup: DataModel
+		source = ```
+				let
+				    Source = CommonDataService.Database("fiveforty-prod.crm.dynamics.com"),
+				    dbo_crf73_pacetimesheetentries = Source{[Schema="dbo",Item="crf73_pacetimesheetrecords"]}[Data],
+				    #"Filtered Rows1" = Table.SelectRows(dbo_crf73_pacetimesheetentries, each ([crf73_isdeleted] = false)),
+				    #"Removed Columns2" = Table.RemoveColumns(#"Filtered Rows1",{"crf73_pacetimesheetrecordsid", "createdon", "createdby", "modifiedon", "modifiedby", "createdonbehalfby", "modifiedonbehalfby", "createdbyname", "createdbyyominame", "createdonbehalfbyname", "createdonbehalfbyyominame", "modifiedbyname", "modifiedbyyominame", "modifiedonbehalfbyname", "modifiedonbehalfbyyominame", "organizationid", "organizationidname", "statecode", "statecodename", "statuscode", "statuscodename", "importsequencenumber", "overriddencreatedon", "timezoneruleversionnumber", "utcconversiontimezonecode", "crf73_id", "asyncoperation", "organization", "processsession", "systemuser(createdby)", "systemuser(createdonbehalfby)", "systemuser(modifiedby)", "systemuser(modifiedonbehalfby)", "crf73_isdeletedname"}),
+				    #"Renamed Columns1" = Table.TransformColumnTypes(Table.RenameColumns(#"Removed Columns2",{{"crf73_workitemid", "Work Item Id"}, {"crf73_recorddate", "RecordDate"}, {"crf73_periodlength", "PeriodLength"}, {"crf73_comment", "Comment"}, {"crf73_editedtimestamp", "Timestamp"}, {"crf73_billableperiodlength", "BillablePeriodLength"}, {"crf73_isdeleted", "IsDeleted"}, {"crf73_teammember", "Team Member"}, {"crf73_teamproject", "Team Project"}}),{{"RecordDate", type date}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Renamed Columns1",null,0,Replacer.ReplaceValue,{"BillablePeriodLength"}),
+				    AddKey = Table.AddColumn(
+				    #"Replaced Value",
+				    "JoinKey",
+				    each Text.Combine(
+				        {
+				            Date.ToText([RecordDate], "yyyy-MM-dd"),
+				            [Team Project],
+				            [Team Member]
+				        },
+				        "|"
+				    ),
+				    type text
+				),
+				    #"Changed Type" = Table.TransformColumnTypes(AddKey,{{"JoinKey", type text}}),
+				   
+				/*Get the sales price list*/
+				    Source2 = Excel.Workbook(Web.Contents(#"Focus Sharepoint Link"), null, true),
+				    SalesTable_Table = Source2{[Item="SalesTable",Kind="Table"]}[Data],
+				    #"Changed Type4" = Table.TransformColumnTypes(SalesTable_Table,{{"EndDate", type date}, {"StartDate", type date}}),
+				    #"Added Custom1" = Table.AddColumn(#"Changed Type4", "Custom", each if [ActivePeriod] = "Yes" then Date.AddDays(DateTime.LocalNow(),31) else [EndDate]),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Added Custom1",{{"Custom", type date}}),
+				    #"Removed Columns22" = Table.RemoveColumns(#"Changed Type3",{"EndDate"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns22",{{"Custom", "EndDate"}}),
+				    #"Changed Type8" = Table.TransformColumnTypes(#"Renamed Columns",{{"StartDate", Int64.Type}, {"EndDate", type number}, {"Team Member", type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type8", "Dates", each {[StartDate]..[EndDate]}),
+				    #"Expanded Dates" = Table.ExpandListColumn(#"Added Custom", "Dates"),
+				    #"Removed Columns" = Table.RemoveColumns(#"Expanded Dates",{"StartDate", "EndDate","Role"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns",{{"Dates", type date}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Changed Type1",{"ActivePeriod"}),
+				    #"Unpivoted Other Columns" = Table.UnpivotOtherColumns(#"Removed Columns1", {"Team Member", "Dates"}, "Attribute", "Value"),
+				    #"Renamed Columns11" = Table.RenameColumns(#"Unpivoted Other Columns",{{"Attribute", "Team Project"}}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Renamed Columns11",{{"Value", type number}}),
+				    AddKey2 = Table.AddColumn(
+				    #"Changed Type2",
+				    "JoinKey",
+				    each Text.Combine(
+				        {
+				            Date.ToText([Dates], "yyyy-MM-dd"),
+				            [Team Project],
+				            [Team Member]
+				        },
+				        "|"
+				    ),
+				    type text
+				),
+				    #"Changed Type5" = Table.TransformColumnTypes(AddKey2,{{"JoinKey", type text}}),
+				   
+				   
+				   
+				   
+				   
+				   
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"JoinKey"}, #"Changed Type5", {"JoinKey"}, "Sales price", JoinKind.LeftOuter),
+				    #"Expanded Sales price" = Table.ExpandTableColumn(#"Merged Queries", "Sales price", {"Value"}, {"Hourly Price"}),
+				    #"Removed Columns5" = Table.RemoveColumns(#"Expanded Sales price",{"Team Project", "JoinKey"}),
+				    #"Added Custom2" = Table.AddColumn(#"Removed Columns5", "JoinKey", each Text.Combine({Date.ToText([RecordDate], "yyyy-MM-dd"),[Team Member]})),
+				    #"Changed Type6" = Table.TransformColumnTypes(#"Added Custom2",{{"JoinKey", type text}})
+				in
+				    #"Changed Type6"
+				```
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

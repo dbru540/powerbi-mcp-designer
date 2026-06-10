@@ -1,0 +1,52 @@
+table 'Last update'
+	lineageTag: bdd671eb-20b5-41ac-8fa1-a163ff4655d7
+
+	column 'Last Update'
+		dataType: dateTime
+		formatString: dd/mm/yy hh"h"nn
+		lineageTag: cd41208f-7e63-4879-b893-6391f7c165ce
+		summarizeBy: none
+		sourceColumn: Last Update
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Last update - today color' =
+			
+			
+			IF(   'Last update'[Last update - today]=0,"#000000",IF( 'Last update'[Last update - today]>16,"#ff0000",IF('Last update'[Last update - today]>8,"#ffbf00","#000000"))
+			)
+		lineageTag: 46d820fe-d4f1-4a8d-8e4e-e1cdba8ec21c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last update - today' =
+			
+			
+			VAR _date = 'Last update'[Last Update]
+			RETURN
+			DATEDIFF(_date,NOW(),HOUR)
+		formatString: 0
+		lineageTag: cf0c2925-2bb5-431f-8b90-c7e53916c9da
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Last update-372589c1-653d-4d5d-881b-9a5c76a752da' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMlSKjQUA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Index = _t]),
+				    #"Added Custom" = Table.AddColumn(Source, "Last Update", each DateTime.LocalNow()),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Custom",{"Index"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

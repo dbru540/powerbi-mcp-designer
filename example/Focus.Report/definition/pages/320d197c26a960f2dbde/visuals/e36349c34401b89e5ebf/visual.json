@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "e36349c34401b89e5ebf",
+  "position": {
+    "x": 952.63634144176137,
+    "y": 214.36363636363637,
+    "z": 10000,
+    "height": 152,
+    "width": 161,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Identify",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0fb3b3"
+                    }
+                  },
+                  {
+                    "value": " timesheets records "
+                  },
+                  {
+                    "value": "missing sales price",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#722281"
+                    }
+                  },
+                  {
+                    "value": ". Then get it updated in "
+                  },
+                  {
+                    "value": "Teams > Middle Management > Focus > Power BI files > Mappings.xlsx",
+                    "textStyle": {
+                      "fontStyle": "italic"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

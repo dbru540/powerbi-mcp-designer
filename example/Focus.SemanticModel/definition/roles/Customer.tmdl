@@ -1,0 +1,7 @@
+role Customer
+	modelPermission: read
+
+	tablePermission Projects = CONTAINSSTRING(Projects[Email PowerBI], userprincipalname())
+
+	annotation PBI_Id = 8c0fcbd53bdd469795e7c9220c3039cd
+

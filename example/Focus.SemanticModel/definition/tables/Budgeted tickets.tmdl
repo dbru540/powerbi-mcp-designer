@@ -1,0 +1,1002 @@
+table 'Budgeted tickets'
+	lineageTag: 3d83fa6d-bf86-4eb2-9f2a-5f7feaf4d19e
+
+	measure 'Fixed price - Budget amount' =
+			CALCULATE(sum('Budgeted tickets'[Amount]),
+			                FILTER(
+			                    'Budgeted tickets',
+			                    CONTAINSSTRING('Budgeted tickets'[Type], "Fix") || CONTAINSSTRING('Budgeted tickets'[Type], "Fixed")
+			                ),
+			USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[FixedProjectRoot] ))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: cf7babfa-413f-47d8-b0ce-e4cedc02585b
+
+	measure 'Fixed price - Margin' =
+			
+			IF(
+			    (ISBLANK([Fixed price - Budget amount]) && ISBLANK([Fixed price - Actual amount])) ||
+			    ([Fixed price - Budget amount]=0 && [Fixed price - Actual amount]=0) ||
+			    (ISBLANK([Fixed price - Budget amount]) && [Fixed price - Actual amount]=0) ||
+			    ([Fixed price - Budget amount]=0 && ISBLANK([Fixed price - Actual amount])),
+			    BLANK(),
+			    IF(
+			        OR([Fixed price - Budget amount]=0,ISBLANK([Fixed price - Budget amount])),-1,
+			        IF(
+			            OR([Fixed price - Actual amount]=0,ISBLANK([Fixed price - Actual amount])),1,
+			            1-[Fixed price - Actual amount]/[Fixed price - Budget amount]
+			        )
+			    )
+			)
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: 60d1f93e-dda1-4644-854d-3e224713b0c7
+
+	measure 'Fixed price - Tech time (%)' =
+			
+			DIVIDE(
+			        CALCULATE(
+			            [Fixed price - Actual amount],
+			            FILTER('Consultants',CONTAINSSTRING('Consultants'[Activity],"developper"))
+			            ),
+			        CALCULATE(
+			            [Fixed price - Actual amount]
+			           )
+			)
+		displayFolder: 1 - Measures
+		lineageTag: 364ea4dc-cb18-46bd-8018-7cc3210f98bb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Fixed price - Actual amount' = ```
+			
+			CALCULATE([Billable amount],
+			                ALL('Calendar'),
+			                FILTER(
+			                    'Budgeted tickets',
+			                    CONTAINSSTRING('Budgeted tickets'[Type], "Fix") || CONTAINSSTRING('Budgeted tickets'[Type], "Fixed")
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[FixedProjectRoot] )
+			                 
+			                 )
+			```
+		displayFolder: 1 - Measures
+		lineageTag: 6694fb4c-2941-4b50-878c-414cc72a4310
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Fixed price - MarginColorCode of ongoing projects' = ```
+			
+			VAR CurrentMargin = [Fixed price - Margin]
+			
+			-- Check for Design activity conditions using the virtual table
+			VAR IsDesignActivityMatch =
+			CALCULATE(COUNTROWS('Power BI - All projects'),
+			
+			            'Power BI - All projects'[Activity] = "Design" &&
+			            'Power BI - All projects'[State] IN {"New", "Active", "Resolved"}, 
+			            USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			            USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[FixedProjectRoot] )
+			         
+			        ) > 0
+			
+			VAR IsEstimateActivityMatch =
+			CALCULATE(COUNTROWS('Power BI - All projects'),
+			
+			            'Power BI - All projects'[Activity] = "Estimate" &&
+			            'Power BI - All projects'[State] IN {"New", "Active", "Resolved"}, 
+			            USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			            USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[FixedProjectRoot] )
+			         
+			        ) > 0
+			        
+			-- Check for Development activity conditions using the virtual table
+			VAR IsDevelopmentActivityActive =
+			CALCULATE(COUNTROWS('Power BI - All projects'),
+			
+			            'Power BI - All projects'[Activity] = "Development" &&
+			            'Power BI - All projects'[State] IN {"New", "Active", "Resolved"}, 
+			            USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			            USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[FixedProjectRoot] )
+			         
+			        ) > 0
+			
+			-- Check for Testing activity conditions using the virtual table
+			VAR IsTestingActivityActive =
+			CALCULATE(COUNTROWS('Power BI - All projects'),
+			
+			            'Power BI - All projects'[Activity] = "Testing" &&
+			            'Power BI - All projects'[State] IN {"New", "Active", "Resolved"}, 
+			            USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			            USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] )
+			         
+			        ) > 0
+			
+			RETURN
+			    IF(
+			        NOT ISBLANK(CurrentMargin), 
+			        -- Condition 1: Design activity, margin < 80%
+			        IF(
+			            (IsDesignActivityMatch || IsEstimateActivityMatch) && CurrentMargin < 0.8,
+			            "#FF9999", -- Red
+			            -- Condition 2: Development activity, margin < 40% (red)
+			            IF(
+			                IsDevelopmentActivityActive && CurrentMargin < 0.4,
+			                "#FF9999", -- Red
+			                -- Condition 3: Development activity, margin < 40% (orange)
+			                IF(
+			                    IsDevelopmentActivityActive && CurrentMargin < 0.5,
+			                    "#FFCC99", -- Orange
+			                    -- Condition 4: Testing activity, margin < 20% (red)
+			                    IF(
+			                        CurrentMargin < 0.2,
+			                        "#FF9999", -- Red
+			                        -- Condition 5: Testing activity, margin < 30% (orange)
+			                        IF(
+			                            IsTestingActivityActive && CurrentMargin < 0.3,
+			                            "#FFCC99", -- Orange
+			                            
+			                            
+			                            
+			                            
+			                            BLANK() -- No special formatting
+			                        )
+			                    )
+			                )
+			            )
+			        ),
+			        BLANK()
+			    )
+			```
+		displayFolder: 1 - Measures
+		lineageTag: a464ba31-b7b5-4b74-affe-8ab937fec03f
+
+	measure 'Fixed price - Budget amount of ongoing projects' = CALCULATE([Fixed price - Budget amount],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 6b73cc91-9f8f-4e69-94fb-dc2395cfc059
+
+	measure 'Fixed price - Budget amount of invoiced projects' = CALCULATE([Fixed price - Budget amount],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]<>BLANK()))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 4be1d56f-a32a-41a5-aa49-5de2f338c8d8
+
+	measure 'Fixed price - Budget amount of projects to invoice' = CALCULATE([Fixed price - Budget amount],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]=BLANK() && 'Budgeted tickets'[State]="Closed"))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 5f408ab8-c868-423c-9a6c-97849fc5f2e8
+
+	measure 'Fixed price - Actual amount of invoiced projects' = CALCULATE([Fixed price - Actual amount],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]<>BLANK()))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 3fc4c591-9ee0-4330-8d8b-0e5af964907c
+
+	measure 'Fixed price - Actual amount of projects to invoice' = CALCULATE([Fixed price - Actual amount],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]=BLANK() && 'Budgeted tickets'[State]="Closed"))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 5a46a741-db2b-4ada-aeb2-884de6e6ecd4
+
+	measure 'Fixed price - Actual amount of ongoing projects' = CALCULATE([Fixed price - Actual amount],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 65339503-c4ee-47ee-a948-d7806d7921cf
+
+	measure 'Fixed price - Margin of ongoing projects' = CALCULATE([Fixed price - Margin],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: d3488dde-94ca-42f3-9e3a-eac6cc403e68
+
+	measure 'Fixed price - Margin of projects to invoice' = CALCULATE([Fixed price - Margin],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]=BLANK() && 'Budgeted tickets'[State]="Closed"))
+		formatString: #,0%;-#,0%;#,0%
+		displayFolder: 1 - Measures
+		lineageTag: 74ce9a2c-28ec-4407-82e8-f1b5a0c07576
+
+	measure 'Fixed price - Margin of invoiced projects' = CALCULATE([Fixed price - Margin],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]<>BLANK()))
+		formatString: #,0%;-#,0%;#,0%
+		displayFolder: 1 - Measures
+		lineageTag: 4e75934c-631e-4f40-bc9b-d0927c6384dc
+
+	measure 'Fixed price - Tech time (%) of projects to invoice' = CALCULATE([Fixed price - Tech time (%)],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]=BLANK() && 'Budgeted tickets'[State]="Closed"))
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: 36846906-4116-49c6-b94c-146e681a0688
+
+	measure 'Fixed price - Tech time (%) of ongoing projects' = CALCULATE([Fixed price - Tech time (%)],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed",USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]))
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: ae5d0c54-0cd7-422d-ab43-8b7dc5604558
+
+	measure 'Fixed price - Tech time (%) of invoiced projects' = CALCULATE([Fixed price - Tech time (%)],FILTER('Budgeted tickets','Budgeted tickets'[Invoiced?]<>BLANK()))
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: 8edf0096-379e-4f3a-aa55-55d8b9a6f336
+
+	measure 'Time & Materials - Billable amount' = ```
+			
+			CALCULATE([Billable amount],
+			                ALL('Calendar'),
+			                FILTER(
+			                    'Budgeted tickets',
+			                    CONTAINSSTRING('Budgeted tickets'[Type], "Time & materials") || CONTAINSSTRING('Budgeted tickets'[Type], "Time") || CONTAINSSTRING('Budgeted tickets'[Type], "T&M")
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] )
+			                 
+			                 )
+			```
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 5a22b354-366a-4a19-b5dc-df184163eb26
+
+	measure 'Time & Materials - Billable amount of ongoing projects' = CALCULATE([Time & Materials - Billable amount],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		displayFolder: 1 - Measures
+		lineageTag: d05feb83-d566-40df-b148-de908ca44850
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Time & Materials - Budget amount' =
+			CALCULATE(
+			                sum('Budgeted tickets'[Amount]),
+			                FILTER(
+			                    'Budgeted tickets',
+			                    CONTAINSSTRING('Budgeted tickets'[Type], "Time & materials") || CONTAINSSTRING('Budgeted tickets'[Type], "Time") || CONTAINSSTRING('Budgeted tickets'[Type], "T&M")
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] ))
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: b7612c59-ce26-40cf-a65d-2b7dcfa61fe0
+
+	measure 'Time & Materials - Budget amount of ongoing projects' = CALCULATE([Time & Materials - Budget amount],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: 0
+		displayFolder: 1 - Measures
+		lineageTag: 4732f287-52f1-4140-8e67-cc1b1bdf9b96
+
+	measure 'Time & Materials - Extra billing %' = ```
+			
+			IF(
+			    (ISBLANK([Time & Materials - Budget amount]) && ISBLANK([Time & Materials - Billable amount])) ||
+			    ([Time & Materials - Budget amount]=0 && [Time & Materials - Billable amount]=0) ||
+			    (ISBLANK([Time & Materials - Budget amount]) && [Time & Materials - Billable amount]=0) ||
+			    ([Time & Materials - Budget amount]=0 && ISBLANK([Time & Materials - Billable amount])),
+			    BLANK(),
+			    IF(
+			        OR([Time & Materials - Budget amount]=0,ISBLANK([Time & Materials - Budget amount])),-1,
+			        IF(
+			            OR([Time & Materials - Billable amount]=0,ISBLANK([Time & Materials - Billable amount])),0,
+			            1-[Time & Materials - Recorded amount]/[Time & Materials - Billable amount]
+			        )
+			    )
+			)
+			
+			```
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: 1 - Measures
+		lineageTag: 347581e2-79e0-4f88-b23f-23f1a1a9b6ea
+
+	measure 'Time & Materials - Extra billing % of ongoing projects' = CALCULATE([Time & Materials - Extra billing %],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: #,0%;-#,0%;#,0%
+		displayFolder: 1 - Measures
+		lineageTag: 1fd83170-c079-4823-bc23-cce8fd36bfaa
+
+	measure 'Time & Materials - Time Final' = ```
+			
+			
+			var _timetype = SELECTEDVALUE(TimeType[Time])
+			var _timeandmaterialsBillableHours = 
+			
+			CALCULATE([BillableHours],
+			                FILTER(
+			                    'Budgeted tickets',
+			                    (CONTAINSSTRING('Budgeted tickets'[Type], "Time & materials") || CONTAINSSTRING('Budgeted tickets'[Type], "Time") || CONTAINSSTRING('Budgeted tickets'[Type], "T&M")) && 'Budgeted tickets'[State] <> "Closed"
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] )
+			                
+			                 )
+			var _timeandmaterialsBillableAmount = 
+			
+			CALCULATE([Billable Amount],
+			                FILTER(
+			                    'Budgeted tickets',
+			                    (CONTAINSSTRING('Budgeted tickets'[Type], "Time & materials") || CONTAINSSTRING('Budgeted tickets'[Type], "Time") || CONTAINSSTRING('Budgeted tickets'[Type], "T&M")) && 'Budgeted tickets'[State] <> "Closed"
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] )
+			                 
+			                 )
+			RETURN
+			
+			IF(_timetype = "Per hour",
+			    _timeandmaterialsBillableHours,
+			    IF( _timetype = "Per day",_timeandmaterialsBillableHours/8, 
+			
+			_timeandmaterialsBillableAmount))
+			```
+		formatString: 0
+		displayFolder: 1 - Measures
+		lineageTag: 8e893d98-beb0-4669-a07c-e95f885419f3
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Time & Materials - Time Final Cumulated' =
+			
+			
+			VAR CurrentDate =
+			    MAXX ( VALUES ( 'Calendar'[Date] ), 'Calendar'[Date] )
+			VAR TodayDate = TODAY()
+			RETURN
+			IF (
+			    CurrentDate > EOMONTH ( TodayDate, 0 ),        -- future months are blank
+			    BLANK(),
+			    CALCULATE (
+			        [Time & Materials - Time Final],
+			        FILTER (
+			            ALLSELECTED ( 'Calendar'[Date] ),
+			            'Calendar'[Date] <= CurrentDate
+			                && 'Calendar'[Date] <= TodayDate
+			        )
+			    )
+			)
+		displayFolder: 1 - Measures
+		lineageTag: 4dc93c55-26b8-44ba-9352-b13da960c1e1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Time & Materials - Recorded amount' = ```
+			
+			CALCULATE([Recorded amount],
+			                ALL('Calendar'),
+			                FILTER(
+			                    'Budgeted tickets',
+			                    CONTAINSSTRING('Budgeted tickets'[Type], "Time & materials") || CONTAINSSTRING('Budgeted tickets'[Type], "Time") || CONTAINSSTRING('Budgeted tickets'[Type], "T&M")
+			                ),
+			                USERELATIONSHIP(Projects[Project Name],'Budgeted tickets'[Team Project]),
+			                USERELATIONSHIP('Budgeted tickets'[Work Item Id],'Power BI - All projects'[Time & Materials Project Root] )
+			                 
+			                 )
+			```
+		displayFolder: 1 - Measures
+		lineageTag: 65da6a6e-f2f9-4220-8814-64084fbb76c6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Time & Materials - Recorded amount of ongoing projects' = CALCULATE([Time & Materials - Recorded amount],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 569ada0d-9410-4dc3-9262-7ff9121beecc
+
+	measure 'Time & Materials - Remaining amount of ongoing projects' = ```
+			
+			[Time & Materials - Budget amount of ongoing projects]-[Time & Materials - Billable amount of ongoing projects]
+			
+			```
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: e2d0e339-29d3-4f12-8b2d-bef297da5055
+
+	measure 'Time & Materials - Remaining %' = ```
+			
+			IF(
+			    (ISBLANK([Time & Materials - Budget amount]) && ISBLANK([Time & Materials - Billable amount])) ||
+			    ([Time & Materials - Budget amount]=0 && [Time & Materials - Billable amount]=0) ||
+			    (ISBLANK([Time & Materials - Budget amount]) && [Time & Materials - Billable amount]=0) ||
+			    ([Time & Materials - Budget amount]=0 && ISBLANK([Time & Materials - Billable amount])),
+			    BLANK(),
+			    IF(
+			        OR([Time & Materials - Budget amount]=0,ISBLANK([Time & Materials - Budget amount])),-1,
+			        IF(
+			            OR([Time & Materials - Billable amount]=0,ISBLANK([Time & Materials - Billable amount])),0,
+			            1-[Time & Materials - Billable amount]/[Time & Materials - Budget amount]
+			        )
+			    )
+			)
+			
+			```
+		displayFolder: 1 - Measures
+		lineageTag: bab838cd-2723-40c1-a2b8-3df0d186ed6d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Time & Materials - Remaining % of ongoing projects' = CALCULATE([Time & Materials - Remaining %],'Budgeted tickets'[Amount]<>0 && 'Budgeted tickets'[State] <> "Closed")
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: 08b78ffe-f6a7-4d3a-8175-5cd5d3bee6fd
+
+	measure 'Fixed price - Stage of ongoing projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return a stage label for ongoing fixed-price projects.
+			- If the related user story is Resolved/Closed, show:
+			      "Story closed since <Closed Date or Resolved Date>"
+			  (prefer Closed Date; if blank, use Resolved Date).
+			
+			Data sources
+			- Dates and states come from 'Power BI - All projects'.
+			
+			Notes
+			- Relationship context is enforced via USERELATIONSHIP to bind Projects and
+			  Budgeted tickets to the appropriate work item roots.
+			--------------------------------------------------------------------------- */
+			
+			VAR Budget =
+			    [Fixed price - Budget amount of ongoing projects]
+			
+			/* ---------------------------
+			  Closure detection (any root)
+			---------------------------- */
+			VAR IsUserStoryClosed =
+			    (
+			        CALCULATE (
+			            COUNTROWS ( 'Power BI - All projects' ),
+			            'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[FixedProjectRoot],
+			            'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			            USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			            USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			        )
+			        +
+			        CALCULATE (
+			            COUNTROWS ( 'Power BI - All projects' ),
+			            'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[Time & Materials Project Root],
+			            'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			            USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			            USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			        )
+			    ) > 0
+			
+			/* ---------------------------------------------------------
+			  Closure date (prefer Closed Date, else Resolved Date)
+			---------------------------------------------------------- */
+			VAR ClosedOrResolvedDate_Fixed =
+			    CALCULATE (
+			        MAXX (
+			            'Power BI - All projects',
+			            COALESCE (
+			                'Power BI - All projects'[Closed Date],
+			                'Power BI - All projects'[Resolved Date]
+			            )
+			        ),
+			        'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[FixedProjectRoot],
+			        'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			    )
+			
+			VAR ClosedOrResolvedDate_TM =
+			    CALCULATE (
+			        MAXX (
+			            'Power BI - All projects',
+			            COALESCE (
+			                'Power BI - All projects'[Closed Date],
+			                'Power BI - All projects'[Resolved Date]
+			            )
+			        ),
+			        'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[Time & Materials Project Root],
+			        'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			    )
+			
+			VAR ClosedOrResolvedDate =
+			    COALESCE ( ClosedOrResolvedDate_Fixed, ClosedOrResolvedDate_TM )
+			
+			/* ---------------------------------
+			  Activity-based stage fallbacks
+			---------------------------------- */
+			VAR IsRequirementActivityMatch =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Requirements"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			    ) > 0
+			
+			VAR IsDesignActivityMatch =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Design"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			    ) > 0
+			
+			VAR IsEstimateActivityMatch =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Estimate"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			    ) > 0
+			
+			VAR IsDevelopmentActivityActive =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Development"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			    ) > 0
+			
+			VAR IsTestingActivityActive =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Testing"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			    ) > 0
+			
+			VAR IsDeploymentActivityActive =
+			    CALCULATE (
+			        COUNTROWS ( 'Power BI - All projects' ),
+			        'Power BI - All projects'[Activity] = "Deployment"
+			            && 'Power BI - All projects'[State] IN { "New", "Active", "Resolved" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			    ) > 0
+			
+			/* -------------------
+			  Label calculations
+			-------------------- */
+			VAR ClosedLabel =
+			    IF (
+			        NOT ISBLANK ( ClosedOrResolvedDate ),
+			        "Story closed since " & FORMAT ( ClosedOrResolvedDate, "[$-en-US]mmm d" ),
+			        "Story closed"
+			    )
+			
+			RETURN
+			    IF (
+			        NOT ISBLANK ( Budget ),
+			        IF (
+			            IsUserStoryClosed,
+			            ClosedLabel,
+			            IF (
+			                IsRequirementActivityMatch, "Requirement",
+			                IF (
+			                    IsDesignActivityMatch, "Specification",
+			                    IF (
+			                        IsEstimateActivityMatch, "Estimate",
+			                        IF (
+			                            IsDevelopmentActivityActive, "Development",
+			                            IF ( IsTestingActivityActive, "Testing",
+			                                IF ( IsDeploymentActivityActive, "Deployment", BLANK () )
+			                            )
+			                        )
+			                    )
+			                )
+			            )
+			        )
+			    )
+			
+			```
+		displayFolder: 1 - Measures
+		lineageTag: d705e4c8-1445-4a11-b689-424590a1965e
+
+	measure 'Fixed price - Specification Actual amount of ongoing projects' = CALCULATE([Fixed price - Actual amount],'Budgeted tickets'[Amount]<>0, 'Power BI - All projects'[Activity] = "Design" )
+		displayFolder: 1 - Measures
+		lineageTag: c0c3b762-533a-4afa-a2ff-36727153c5ec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Fixed price - Stage Color of ongoing projects' = ```
+			
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return a hex color for status formatting:
+			    - Red  (#FF9999): Closed/Resolved exists AND
+			        (today is within 5 days of month-end OR the closure month is last month)
+			    - Orange (#FFCC99): Closed/Resolved exists AND older than 5 days vs. today
+			    - Otherwise: BLANK()
+			
+			Data source
+			- Closed/Resolved dates come from 'Power BI - All projects'.
+			
+			Usage
+			- Use this measure for visual conditional formatting: Format by → Field value.
+			--------------------------------------------------------------------------- */
+			
+			VAR TodayDate = TODAY()
+			VAR EndOfThisMonth = EOMONTH(TodayDate, 0)
+			VAR DaysToEOM = INT( EndOfThisMonth - TodayDate )
+			
+			/* ---------------------------------------------------------
+			  Compute the closure date: prefer Closed Date, else Resolved
+			  We evaluate for both roots and take the first non-blank.
+			---------------------------------------------------------- */
+			VAR ClosedOrResolvedDate_Fixed =
+			    CALCULATE (
+			        MAXX (
+			            'Power BI - All projects',
+			            COALESCE (
+			                'Power BI - All projects'[Closed Date],
+			                'Power BI - All projects'[Resolved Date]
+			            )
+			        ),
+			        'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[FixedProjectRoot],
+			        'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[FixedProjectRoot] )
+			    )
+			
+			VAR ClosedOrResolvedDate_TM =
+			    CALCULATE (
+			        MAXX (
+			            'Power BI - All projects',
+			            COALESCE (
+			                'Power BI - All projects'[Closed Date],
+			                'Power BI - All projects'[Resolved Date]
+			            )
+			        ),
+			        'Power BI - All projects'[Work Item Id] = 'Power BI - All projects'[Time & Materials Project Root],
+			        'Power BI - All projects'[State] IN { "Resolved", "Closed" },
+			        USERELATIONSHIP ( Projects[Project Name], 'Budgeted tickets'[Team Project] ),
+			        USERELATIONSHIP ( 'Budgeted tickets'[Work Item Id], 'Power BI - All projects'[Time & Materials Project Root] )
+			    )
+			
+			VAR ClosedOrResolvedDate =
+			    COALESCE ( ClosedOrResolvedDate_Fixed, ClosedOrResolvedDate_TM )
+			
+			VAR HasClosure = NOT ISBLANK ( ClosedOrResolvedDate )
+			
+			/* ---------------------------------------------------------
+			  Red conditions:
+			  1) Today within 5 days of EOM (0..5 inclusive), AND a closure date exists.
+			  2) Closure month is the PREVIOUS month relative to today.
+			---------------------------------------------------------- */
+			VAR IsWithin5DaysOfEOM = DaysToEOM >= 0 && DaysToEOM <= 5
+			VAR IsPreviousMonth =
+			    EOMONTH ( ClosedOrResolvedDate, 0 ) = EOMONTH ( TodayDate, -1 )
+			
+			/* ---------------------------------------------------------
+			  Orange condition:
+			  - Closure date is >5 days in the past relative to today.
+			---------------------------------------------------------- */
+			VAR DaysPast = DATEDIFF ( ClosedOrResolvedDate, TodayDate, DAY )
+			VAR IsPastMoreThan5Days = DaysPast > 5
+			
+			RETURN
+			    IF (
+			        HasClosure &&
+			        ( IsWithin5DaysOfEOM || IsPreviousMonth ),
+			        "#FF9999",                                     -- Red
+			        IF ( HasClosure && IsPastMoreThan5Days, "#FFCC99", BLANK() )   -- Orange else BLANK
+			    )
+			
+			```
+		displayFolder: 1 - Measures
+		lineageTag: 413f601c-e98a-4d00-88c5-3a31018f0daa
+
+	measure 'Fixed price - Actual percentage of ongoing projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return the actual "Specification" (Design activity) amount for ongoing
+			  fixed-price projects, ensuring that:
+			    • The Budgeted ticket Amount is not blank or zero
+			    • The State is not "Closed"
+			    • The Activity = "Design"
+			
+			Data sources
+			- 'Budgeted tickets' table for Amount and State
+			- 'Power BI - All projects' for Activity
+			--------------------------------------------------------------------------- */
+			
+			VAR SpecificationActualAmount =
+			    CALCULATE(
+			        [Fixed price - Actual amount],
+			        
+			        FILTER(
+			            'Budgeted tickets',
+			            NOT ISBLANK('Budgeted tickets'[Amount]) &&
+			            'Budgeted tickets'[Amount] <> 0 &&
+			            'Budgeted tickets'[State] <> "Closed"
+			        ),
+			        
+			        'Power BI - All projects'[Activity] = "Design"
+			    )
+			
+			RETURN
+			    DIVIDE(
+			        SpecificationActualAmount,
+			        [Fixed price - Budget amount of ongoing projects]
+			    )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: 1 - Measures
+		lineageTag: aa24d2db-1383-44ae-b7b6-3a143b4a0999
+
+	measure 'Fixed price - Actual percentage - specification of ongoing projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return the actual "Specification" (Design activity) amount for ongoing
+			  fixed-price projects, ensuring that:
+			    • The Budgeted ticket Amount is not blank or zero
+			    • The State is not "Closed"
+			    • The Activity = "Design"
+			
+			Data sources
+			- 'Budgeted tickets' table for Amount and State
+			- 'Power BI - All projects' for Activity
+			--------------------------------------------------------------------------- */
+			
+			VAR SpecificationActualAmount =
+			    CALCULATE(
+			        [Fixed price - Actual amount],
+			        
+			        FILTER(
+			            'Budgeted tickets',
+			            NOT ISBLANK('Budgeted tickets'[Amount]) &&
+			            'Budgeted tickets'[Amount] <> 0 &&
+			            'Budgeted tickets'[State] <> "Closed"
+			        ),
+			        
+			        'Power BI - All projects'[Activity] = "Design"
+			    )
+			
+			RETURN
+			    DIVIDE(
+			        SpecificationActualAmount,
+			        [Fixed price - Budget amount of ongoing projects])
+			  
+			```
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: c9507834-588b-48ec-9adb-cb0c2df10f02
+
+	measure 'Fixed price - Actual percentage - estimate of ongoing projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return the actual "Estimate" (Estimate activity) amount for ongoing
+			  fixed-price projects, ensuring that:
+			    • The Budgeted ticket Amount is not blank or zero
+			    • The State is not "Closed"
+			    • The Activity = "Design"
+			
+			Data sources
+			- 'Budgeted tickets' table for Amount and State
+			- 'Power BI - All projects' for Activity
+			--------------------------------------------------------------------------- */
+			
+			VAR EstimateActualAmount =
+			    CALCULATE(
+			        [Fixed price - Actual amount],
+			        
+			        FILTER(
+			            'Budgeted tickets',
+			            NOT ISBLANK('Budgeted tickets'[Amount]) &&
+			            'Budgeted tickets'[Amount] <> 0 &&
+			            'Budgeted tickets'[State] <> "Closed"
+			        ),
+			        
+			        'Power BI - All projects'[Activity] = "Estimate"
+			    )
+			
+			RETURN
+			    DIVIDE(
+			        EstimateActualAmount,
+			        [Fixed price - Budget amount of ongoing projects])
+			  
+			```
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: b08ea7af-1730-447d-9604-4a3051cc105d
+
+	measure '0Fixed price - Actual percentage - development of ongoing projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return the actual "Specification" (Design activity) amount for ongoing
+			  fixed-price projects, ensuring that:
+			    • The Budgeted ticket Amount is not blank or zero
+			    • The State is not "Closed"
+			    • The Activity = "Design"
+			
+			Data sources
+			- 'Budgeted tickets' table for Amount and State
+			- 'Power BI - All projects' for Activity
+			--------------------------------------------------------------------------- */
+			
+			VAR DevelopmentActualAmount =
+			    CALCULATE(
+			        [Fixed price - Actual amount],
+			        
+			        FILTER(
+			            'Budgeted tickets',
+			            NOT ISBLANK('Budgeted tickets'[Amount]) &&
+			            'Budgeted tickets'[Amount] <> 0 &&
+			            'Budgeted tickets'[State] <> "Closed"
+			        ),
+			        
+			        'Power BI - All projects'[Activity] = "Development"
+			    )
+			
+			RETURN
+			    DIVIDE(
+			        DevelopmentActualAmount,
+			        [Fixed price - Budget amount of ongoing projects])
+			  
+			```
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: b9312d11-e0f8-400a-b3cd-6004a97958da
+
+	measure 'Fixed price - Actual percentage - estimate of closed projects' = ```
+			
+			/* ---------------------------------------------------------------------------
+			Purpose
+			- Return the actual "Estimate" (Estimate activity) amount for ongoing
+			  fixed-price projects, ensuring that:
+			    • The Budgeted ticket Amount is not blank or zero
+			    • The State is not "Closed"
+			    • The Activity = "Design"
+			
+			Data sources
+			- 'Budgeted tickets' table for Amount and State
+			- 'Power BI - All projects' for Activity
+			--------------------------------------------------------------------------- */
+			
+			VAR EstimateActualAmount =
+			    CALCULATE(
+			        [Fixed price - Actual amount],
+			        
+			        FILTER(
+			            'Budgeted tickets',
+			            NOT ISBLANK('Budgeted tickets'[Amount]) &&
+			            'Budgeted tickets'[Amount] <> 0 &&
+			            'Budgeted tickets'[State] = "Closed"
+			        ),
+			        
+			        'Power BI - All projects'[Activity] = "Estimate"
+			    )
+			
+			RETURN
+			    DIVIDE(
+			        EstimateActualAmount,
+			        CALCULATE([Fixed price - Budget amount of projects to invoice]+'Budgeted tickets'[Fixed price - Budget amount of invoiced projects]))
+			  
+			```
+		formatString: 0%;-0%;0%
+		displayFolder: 1 - Measures
+		lineageTag: a3bdca77-4ca8-44e9-b298-ef7b592ec7cf
+
+	column 'Work Item Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ae40a11-f5ff-43b3-8d40-117df91cf621
+		summarizeBy: count
+		sourceColumn: Work Item Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Title
+		dataType: string
+		lineageTag: a467a551-f5ca-49df-b0c6-a4d6763434ee
+		summarizeBy: none
+		sourceColumn: Title
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Approved date'
+		dataType: dateTime
+		formatString: mmmm d
+		lineageTag: b59b6e72-ed22-4180-bd63-d2308ceacef2
+		summarizeBy: none
+		sourceColumn: Approved date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Amount
+		dataType: double
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		lineageTag: 03ab1e5c-99f7-43ea-9342-54ac53cdc875
+		summarizeBy: sum
+		sourceColumn: Amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: bb34282e-47c2-4bcd-b12b-e2f3f7f67d0f
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Invoiced?
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6f9e1bfb-e448-45da-b8bb-7c43216a6bb1
+		summarizeBy: none
+		sourceColumn: Invoiced?
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Team Project'
+		dataType: string
+		lineageTag: cb2dee5b-c503-4ae8-9560-f79d1b66ad44
+		summarizeBy: none
+		sourceColumn: Team Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Item'
+		dataType: string
+		lineageTag: 5748af10-2513-48e5-815e-a579ef2df364
+		summarizeBy: none
+		sourceColumn: Work Item
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Project manager'
+		dataType: string
+		isHidden
+		lineageTag: 5909cf1f-90cf-4a5b-9711-1660288c1763
+		summarizeBy: none
+		sourceColumn: Project manager
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		dataType: string
+		lineageTag: c755f2e9-61d6-402c-804e-cc76e99ea117
+		summarizeBy: none
+		sourceColumn: Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Reference
+		dataType: string
+		lineageTag: 8065b621-2223-49ea-848d-ee8e5f877178
+		summarizeBy: none
+		sourceColumn: Reference
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Budgeted tickets-fbc8d802-f2f9-4cbe-b9fd-7b2a5ec5072e' = m
+		mode: import
+		queryGroup: DataModel
+		source =
+				let
+				    Source = Excel.Workbook(Web.Contents(#"Sharepoint Link - Middle Management files"), null, true),
+				    #"Fixed priced projects_Sheet" = Source{[Item="FixedPriced",Kind="Table"]}[Data],
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Fixed priced projects_Sheet",{{"Work Item Id", type text}, {"Title", type text}, {"Type", type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type1", "Work Item", each Text.Combine({[Work Item Id]," - ", [Title]})),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Added Custom",{{"Work Item Id", Int64.Type}, {"Amount", Int64.Type}, {"State", type text}, {"Invoiced?", type date}, {"Project manager", type text}, {"Team Project", type text}, {"Work Item", type text}, {"Approved date", type date}}),
+				    #"Linhas Filtradas" = Table.SelectRows(#"Changed Type", each ([Work Item Id] <> null)),
+				    #"Linhas Filtradas1" = Table.SelectRows(#"Linhas Filtradas", each ([Work Item Id] <> "")),
+				
+				
+				    Source1 = Excel.Workbook(Web.Contents(#"Sharepoint Link - Middle Management files"), null, true),
+				    #"Fixed priced projects_Sheet1" = Source1{[Item="TimeAndMaterials",Kind="Table"]}[Data],
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Fixed priced projects_Sheet1",{{"Title", type text}, {"Type", type text}, {"Approved date", type date}, {"Reference", type text}, {"Amount", type number}, {"Project manager", type text}, {"Team Project", type text}, {"Work Item Id", type text}}),
+				    #"Added Custom1" = Table.AddColumn(#"Changed Type2", "Work Item", each Text.Combine({[Work Item Id]," - ", [Title]})),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Added Custom1",{{"Work Item Id", Int64.Type}}),
+				    #"Linhas Filtradas2" = Table.SelectRows(#"Changed Type3", each ([Work Item Id] <> null)),
+				    #"Linhas Filtradas3" = Table.SelectRows(#"Linhas Filtradas2", each ([Work Item Id] <> "")),
+				
+				
+				
+				    #"Appended Query" = Table.Combine({#"Linhas Filtradas1", #"Linhas Filtradas3"})
+				in
+				    #"Appended Query"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

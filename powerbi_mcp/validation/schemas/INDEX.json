@@ -1,0 +1,18 @@
+{
+  "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json": "fabric__pbip__pbipProperties__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json": "fabric__gitIntegration__platformProperties__2.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json": "fabric__item__report__definitionProperties__2.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json": "fabric__item__report__definition__versionMetadata__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json": "fabric__item__report__definition__report__3.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json": "fabric__item__report__definition__report__3.1.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.2.0/schema.json": "fabric__item__report__definition__report__3.2.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json": "fabric__item__report__definition__page__2.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json": "fabric__item__report__definition__pagesMetadata__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.0.0/schema.json": "fabric__item__report__definition__visualContainer__2.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json": "fabric__item__report__definition__visualContainer__2.4.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json": "fabric__item__report__definition__visualContainer__2.8.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/report/localSettings/1.0.0/schema.json": "fabric__item__report__localSettings__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/definitionProperties/1.0.0/schema.json": "fabric__item__semanticModel__definitionProperties__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/editorSettings/1.0.0/schema.json": "fabric__item__semanticModel__editorSettings__1.0.0__schema.json",
+  "https://developer.microsoft.com/json-schemas/fabric/item/semanticModel/localSettings/1.1.0/schema.json": "fabric__item__semanticModel__localSettings__1.1.0__schema.json"
+}

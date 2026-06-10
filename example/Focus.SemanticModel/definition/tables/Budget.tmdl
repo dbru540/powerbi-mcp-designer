@@ -1,0 +1,161 @@
+table Budget
+	lineageTag: 329d9969-37de-45f6-a072-3699c935383a
+
+	measure Budget = CALCULATE(SUM(Budget[Amount]),CONTAINSSTRING(Budget[Budget type],"Budget"))
+		displayFolder: 1 - Measures
+		lineageTag: f5ba8ca8-4530-4018-9ffc-bc9e717bdb56
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Budget (CY)' =
+			
+			
+			CALCULATE(
+			    [Budget],
+			    FILTER('Calendar',CONVERT(YEAR(TODAY()),STRING)='Calendar'[Year]),
+			    USERELATIONSHIP('Calendar'[Date],Budget[Date])
+			)
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: 1 - Measures
+		lineageTag: b8106715-4fda-4c06-90da-d6638abb47f1
+
+	measure Actual = CALCULATE(-SUM(Budget[Amount]),CONTAINSSTRING(Budget[Budget type],"Actual"))
+		displayFolder: 1 - Measures
+		lineageTag: 78f10b24-eab9-45cc-a32e-1f2634aee2df
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Actual (CY)' =
+			
+			
+			CALCULATE(
+			    [Actual],
+			    FILTER('Calendar',CONVERT(YEAR(TODAY()),STRING)='Calendar'[Year]),
+			    USERELATIONSHIP('Calendar'[Date],Budget[Date])
+			)
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		displayFolder: 1 - Measures
+		lineageTag: 779c69bd-9c52-4a67-93e1-404ee76ad4bd
+
+	measure 'Remaining budget (CY)' = [Budget (CY)] - [Actual (CY)]
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 840d22f2-6078-47a0-a88f-1361595ef26b
+
+	measure 'Remaining budget per remaining CY months' = ```
+			
+			VAR RemainCY  = [Remaining budget (CY)]
+			VAR CurrYear  = YEAR( TODAY() )
+			
+			// 1) Generate numbers 1→12 for each month
+			VAR MonthNums =
+			    GENERATESERIES( 1, 12, 1 )
+			
+			// 2) For each month, fetch your [Actual], force blank→0
+			VAR MonthActuals =
+			    ADDCOLUMNS(
+			        MonthNums,
+			        "ActValue",
+			        COALESCE(
+			            CALCULATE(
+			                [Actual],
+			                // ignore any existing Budget filters on Date
+			                FILTER(
+			                    ALL( Budget ),
+			                    YEAR( Budget[Date] ) = CurrYear
+			                    && MONTH( Budget[Date] ) = [Value]
+			                )
+			            ),
+			            0
+			        )
+			    )
+			
+			// 3) Count only those months whose actual = 0
+			VAR MonthsRem =
+			    COUNTROWS(
+			        FILTER( MonthActuals, [ActValue] = 0 )
+			    )
+			
+			// 4) Divide, safely handling divide-by-zero
+			RETURN
+			DIVIDE( RemainCY, MonthsRem, BLANK() )
+			
+			```
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		displayFolder: 1 - Measures
+		lineageTag: 251ed723-2a91-4188-b0ca-a8dea4c05bc9
+
+	column 'Team Project'
+		dataType: string
+		lineageTag: 4026462e-a100-436e-aeb2-511b0b30e15a
+		summarizeBy: none
+		sourceColumn: Team Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Budget type'
+		dataType: string
+		lineageTag: 91df674d-b1d1-4bee-b942-9996efde505f
+		summarizeBy: none
+		sourceColumn: Budget type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: mm/dd/yy
+		lineageTag: d5814a9d-304e-43d2-a3ce-29e9e692cb59
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Amount
+		dataType: double
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		lineageTag: b4ab932c-3f12-4c48-b3d7-f3d891128a7f
+		summarizeBy: sum
+		sourceColumn: Amount
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Area lvl 2'
+		dataType: string
+		lineageTag: 58a02981-b93f-4b68-af83-23faa4d8b583
+		summarizeBy: none
+		sourceColumn: Area lvl 2
+
+		annotation SummarizationSetBy = Automatic
+
+	column InvoiceId
+		dataType: string
+		lineageTag: b1998838-5627-4a09-ba51-cf27df8135d9
+		summarizeBy: none
+		sourceColumn: InvoiceId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Budget = m
+		mode: import
+		queryGroup: DataModel
+		source =
+				let
+				    Source = Excel.Workbook(Web.Contents(#"Sharepoint Link - Middle Management files"), null, true),
+				    #"Linhas Filtradas" = Table.SelectRows(Source, each ([Name] = "Budget")),
+				    #"Data Expandido" = Table.ExpandTableColumn(#"Linhas Filtradas", "Data", {"Column1", "Column2", "Column3", "Column4", "Column5", "Column6", "Column7"}, {"Column1", "Column2", "Column3", "Column4", "Column5", "Column6", "Column7"}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Data Expandido",{"Name", "Item", "Kind", "Hidden"}),
+				    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(#"Colunas Removidas", [PromoteAllScalars=true]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"Area Path Lvl 2", type text}, {"Type (Opex/Capex)", type text}, {"InvoiceId", type text}, {"Budget type", type text}, {"Team Project", type text}, {"Date", type date}, {"Amount", type number}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Tipo Alterado",{{"Area Path Lvl 2", "Area lvl 2"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"Type (Opex/Capex)"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

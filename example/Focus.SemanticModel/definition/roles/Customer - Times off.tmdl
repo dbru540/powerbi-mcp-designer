@@ -1,0 +1,7 @@
+role 'Customer - Times off'
+	modelPermission: read
+
+	tablePermission Projects = Projects[Project Name] == "Interne"
+
+	annotation PBI_Id = c1419e8ffe324ebe868aefec893c035e
+

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "9f91e5629c1469a83f61",
+  "position": {
+    "x": 60.980468611534512,
+    "y": 90.018786997979518,
+    "z": 7000,
+    "height": 30.974206278874675,
+    "width": 1148.9494641570075
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Due to ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontStyle": "italic"
+                    }
+                  },
+                  {
+                    "value": "Power BI limitations",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontStyle": "italic",
+                      "color": "#722281"
+                    }
+                  },
+                  {
+                    "value": ", the matrix table will only display the next 3 months (100 columns). Please change the starting date if you want to look at more than 3 months.",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontStyle": "italic"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

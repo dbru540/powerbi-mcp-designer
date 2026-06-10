@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=77.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "powerbi-mcp-server"
+version = "0.1.0"
+description = "Local MCP server for Power BI PBIP/PBIR/TMDL modeling and report design automation"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    {name = "David Bru", email = "dbru@fiveforty.fr"},
+]
+keywords = ["mcp", "powerbi", "pbip", "pbir", "tmdl", "claude", "codex"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Build Tools",
+]
+dependencies = [
+    "mcp>=0.1.0",
+    "jsonschema",
+    "pydantic",
+]
+
+[project.urls]
+Homepage = "https://github.com/dbru540/powerbi-mcp-server"
+Repository = "https://github.com/dbru540/powerbi-mcp-server"
+Issues = "https://github.com/dbru540/powerbi-mcp-server/issues"
+
+[project.scripts]
+powerbi-mcp = "powerbi_mcp.server:main"
+powerbi-mcp-server = "powerbi_mcp.server:main"
+powerbi-mcp-doctor = "powerbi_mcp.cli:doctor_main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["powerbi_mcp*"]
+exclude = ["powerbi_mcp.tests*"]
+
+[tool.setuptools.package-data]
+"powerbi_mcp.validation.schemas" = ["*.json"]

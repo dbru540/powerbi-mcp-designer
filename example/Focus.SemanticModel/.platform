@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Focus"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "034ac39e-c30a-43da-a29d-fb84885f5f2b"
+  }
+}

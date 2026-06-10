@@ -1,0 +1,35 @@
+table 'Calendar Month'
+	lineageTag: 1a5b582e-b9b9-4f71-8d02-bd4ea934d6d8
+
+	column Month
+		dataType: string
+		lineageTag: f3ea783e-dbac-41fc-b9f0-c2e40cf4b06f
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthText
+		dataType: string
+		lineageTag: 7c0960e9-3b21-4ea9-b0c3-5133dc8f0901
+		summarizeBy: none
+		sourceColumn: MonthText
+		sortByColumn: Month
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Calendar Month' = m
+		mode: import
+		queryGroup: DataImport
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMjBU0lHySswrTSyqVIrVAQoYAQXcUpOKECLGQBHfxKLkDAjXBMh1LCjKzIFwTcGyUKVmINNK81IhPHMwLwcqZwHSV5peWlwC4VsC+cGpBSWpuUmpRWAhQwOgkH9yST5cAOQ6v/wyJCUg57mkJkNFYgE=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Month = _t, MonthText = _t])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

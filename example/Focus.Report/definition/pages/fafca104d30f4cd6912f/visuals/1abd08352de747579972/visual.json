@@ -1,0 +1,76 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.4.0/schema.json",
+  "name": "1abd08352de747579972",
+  "position": {
+    "x": 0,
+    "y": 720,
+    "z": 0,
+    "height": 350,
+    "width": 1280
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DevOps_Timesheets"
+                    }
+                  },
+                  "Property": "Team Member"
+                }
+              },
+              "queryRef": "DevOps_Timesheets.Team Member",
+              "nativeQueryRef": "Collaborateur"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Budgeted tickets"
+                    }
+                  },
+                  "Property": "Fixed price - Margin"
+                }
+              },
+              "queryRef": "Budgeted tickets.Margin",
+              "nativeQueryRef": "Margin"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Margin Contribution by Team Member'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
