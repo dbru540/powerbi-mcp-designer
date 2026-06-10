@@ -51,7 +51,8 @@ class MCPIntegrationTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(init.serverInfo.name, "PowerBI-MCP-Server")
 
                     tools = await session.list_tools()
-                    tool_names = {tool.name for tool in tools.tools}
+                    tools_by_name = {tool.name: tool for tool in tools.tools}
+                    tool_names = set(tools_by_name)
                     self.assertIn("project_get_summary", tool_names)
                     self.assertIn("report_get_visual_bindings", tool_names)
                     self.assertIn("model_upsert_measure", tool_names)
@@ -84,6 +85,35 @@ class MCPIntegrationTests(unittest.IsolatedAsyncioTestCase):
                     self.assertIn("report_design_readiness_check", tool_names)
                     self.assertIn("report_design_visual_qa_loop", tool_names)
                     self.assertIn("report_design_desktop_evidence_summary", tool_names)
+
+                    for tool_name, tool in tools_by_name.items():
+                        with self.subTest(tool_name=tool_name):
+                            self.assertIsNotNone(tool.annotations)
+                            self.assertIsNotNone(tool.annotations.readOnlyHint)
+                            self.assertIsNotNone(tool.annotations.destructiveHint)
+                            self.assertIsNotNone(tool.annotations.idempotentHint)
+                            self.assertIsNotNone(tool.annotations.openWorldHint)
+
+                    read_annotations = tools_by_name["project_get_summary"].annotations
+                    self.assertIsNotNone(read_annotations)
+                    self.assertIs(read_annotations.readOnlyHint, True)
+                    self.assertIs(read_annotations.destructiveHint, False)
+                    self.assertIs(read_annotations.idempotentHint, True)
+                    self.assertIs(read_annotations.openWorldHint, False)
+
+                    write_annotations = tools_by_name["create_page"].annotations
+                    self.assertIsNotNone(write_annotations)
+                    self.assertIs(write_annotations.readOnlyHint, False)
+                    self.assertIs(write_annotations.destructiveHint, True)
+                    self.assertIs(write_annotations.idempotentHint, False)
+                    self.assertIs(write_annotations.openWorldHint, False)
+
+                    open_world_annotations = tools_by_name["report_design_visual_qa_loop"].annotations
+                    self.assertIsNotNone(open_world_annotations)
+                    self.assertIs(open_world_annotations.readOnlyHint, False)
+                    self.assertIs(open_world_annotations.destructiveHint, False)
+                    self.assertIs(open_world_annotations.idempotentHint, False)
+                    self.assertIs(open_world_annotations.openWorldHint, True)
 
                     summary = _parse_json_tool_result(
                         await session.call_tool(

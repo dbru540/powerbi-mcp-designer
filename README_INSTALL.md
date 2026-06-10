@@ -45,19 +45,19 @@ Before PyPI publication, or for a private GitHub repository, users can run the
 server directly from a tagged Git repository:
 
 ```bash
-uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server
+uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server
 ```
 
 Claude Code:
 
 ```bash
-claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server
+claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server
 ```
 
 Codex:
 
 ```bash
-codex mcp add powerbi-mcp -- uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server
+codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server
 ```
 
 ## Development Install

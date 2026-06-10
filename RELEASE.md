@@ -9,16 +9,16 @@ package `powerbi-mcp-server`.
 2. Add the remote locally:
 
    ```bash
-   git remote add origin https://github.com/<owner>/<repo>.git
+   git remote add origin https://github.com/dbru540/powerbi-mcp-server.git
    ```
 
 3. Add the real GitHub URLs to `pyproject.toml`:
 
    ```toml
    [project.urls]
-   Homepage = "https://github.com/<owner>/<repo>"
-   Repository = "https://github.com/<owner>/<repo>"
-   Issues = "https://github.com/<owner>/<repo>/issues"
+   Homepage = "https://github.com/dbru540/powerbi-mcp-server"
+   Repository = "https://github.com/dbru540/powerbi-mcp-server"
+   Issues = "https://github.com/dbru540/powerbi-mcp-server/issues"
    ```
 
 4. Create the PyPI project `powerbi-mcp-server`.
@@ -52,7 +52,7 @@ Verify the wheel in a clean environment:
 ```bash
 python -m venv C:/_pbimcp_pkg_install_venv
 C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install --upgrade pip
-C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install dist/powerbi_mcp_server-0.1.0-py3-none-any.whl
+C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install dist/powerbi_mcp_server-0.1.1-py3-none-any.whl
 C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-server.exe --help
 C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-doctor.exe --project example --no-validate
 ```
@@ -60,7 +60,7 @@ C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-doctor.exe --project example --n
 Verify `uvx` behavior:
 
 ```bash
-uvx --from dist/powerbi_mcp_server-0.1.0-py3-none-any.whl powerbi-mcp-server --help
+uvx --from dist/powerbi_mcp_server-0.1.1-py3-none-any.whl powerbi-mcp-server --help
 ```
 
 ## Publish to TestPyPI
@@ -108,24 +108,23 @@ codex mcp add powerbi-mcp -- uvx powerbi-mcp-server
 If PyPI is not ready yet, publish a GitHub tag and install directly from Git:
 
 ```bash
-uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server --help
+uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server --help
 ```
 
 Claude Code:
 
 ```bash
-claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server
+claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server
 ```
 
 Codex:
 
 ```bash
-codex mcp add powerbi-mcp -- uvx --from git+https://github.com/<owner>/<repo>.git@v0.1.0 powerbi-mcp-server
+codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.1 powerbi-mcp-server
 ```
 
 ## Known Local Blockers
 
-The current local environment does not have `gh` installed and this repository
-does not yet have a Git remote. Repository creation, GitHub environment setup,
-and PyPI Trusted Publishing must be completed from an authenticated GitHub/PyPI
-account.
+PyPI Trusted Publishing must still be configured from an authenticated PyPI
+account before PyPI publication can succeed. GitHub-only distribution is
+available from the tagged repository.

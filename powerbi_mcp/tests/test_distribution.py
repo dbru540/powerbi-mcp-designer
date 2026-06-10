@@ -29,13 +29,13 @@ class DistributionCheckTests(unittest.TestCase):
     def test_dist_artifact_check_rejects_wheel_with_tests(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             dist_dir = Path(temp_dir)
-            wheel_path = dist_dir / "powerbi_mcp_server-0.1.0-py3-none-any.whl"
-            sdist_path = dist_dir / "powerbi_mcp_server-0.1.0.tar.gz"
+            wheel_path = dist_dir / "powerbi_mcp_server-0.1.1-py3-none-any.whl"
+            sdist_path = dist_dir / "powerbi_mcp_server-0.1.1.tar.gz"
             sdist_path.write_bytes(b"placeholder")
             with zipfile.ZipFile(wheel_path, "w") as wheel:
                 wheel.writestr("powerbi_mcp/tests/test_bad.py", "")
                 wheel.writestr("powerbi_mcp/validation/schemas/INDEX.json", "{}")
-                wheel.writestr("powerbi_mcp_server-0.1.0.dist-info/entry_points.txt", "")
+                wheel.writestr("powerbi_mcp_server-0.1.1.dist-info/entry_points.txt", "")
 
             result = check_dist_artifacts(dist_dir)
 

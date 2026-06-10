@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "powerbi-mcp-server"
-version = "0.1.0"
+version = "0.1.1"
 description = "Local MCP server for Power BI PBIP/PBIR/TMDL modeling and report design automation"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -17,6 +17,7 @@ from pathlib import Path
 
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
 
 from powerbi_mcp.common.paths import (
     find_report_dir,
@@ -98,7 +99,90 @@ from powerbi_mcp.validation.engine import validate_model
 # INITIALISATION DU SERVEUR MCP
 # =============================================================================
 
-mcp = FastMCP(
+MUTATING_TOOL_PREFIXES = (
+    "apply_",
+    "batch_update_",
+    "clone_",
+    "copy_",
+    "create_",
+    "delete_",
+    "duplicate_",
+    "model_create_",
+    "model_update_",
+    "model_upsert_",
+    "rename_",
+    "report_create_",
+    "set_",
+    "update_",
+)
+
+MUTATING_TOOL_NAMES = {
+    "page_design_apply_quick_wins",
+    "page_layout_apply_quick_wins",
+    "page_layout_apply_reflow_plan",
+    "report_design_apply_quick_wins",
+    "report_layout_apply_quick_wins",
+    "visual_plan_apply",
+    "visual_plan_generate_and_apply",
+}
+
+OPEN_WORLD_TOOL_NAMES = {
+    "report_design_visual_qa_loop",
+}
+
+
+def _annotations_for_tool(tool_name: str) -> ToolAnnotations:
+    if tool_name in OPEN_WORLD_TOOL_NAMES:
+        return ToolAnnotations(
+            readOnlyHint=False,
+            destructiveHint=False,
+            idempotentHint=False,
+            openWorldHint=True,
+        )
+    if tool_name in MUTATING_TOOL_NAMES or tool_name.startswith(MUTATING_TOOL_PREFIXES):
+        return ToolAnnotations(
+            readOnlyHint=False,
+            destructiveHint=True,
+            idempotentHint=False,
+            openWorldHint=False,
+        )
+    return ToolAnnotations(
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    )
+
+
+class AnnotatedFastMCP(FastMCP):
+    """FastMCP wrapper that prevents MCP clients from falling back to misleading default hints."""
+
+    def tool(
+        self,
+        name: str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        annotations: ToolAnnotations | None = None,
+        icons: list[Any] | None = None,
+        meta: dict[str, Any] | None = None,
+        structured_output: bool | None = None,
+    ):
+        def decorator(fn):
+            tool_name = name or fn.__name__
+            return super(AnnotatedFastMCP, self).tool(
+                name=name,
+                title=title,
+                description=description,
+                annotations=annotations or _annotations_for_tool(tool_name),
+                icons=icons,
+                meta=meta,
+                structured_output=structured_output,
+            )(fn)
+
+        return decorator
+
+
+mcp = AnnotatedFastMCP(
     "PowerBI-MCP-Server",
     instructions=(
         "Use this local MCP server to inspect and safely edit Power BI PBIP/PBIR/TMDL projects. "
