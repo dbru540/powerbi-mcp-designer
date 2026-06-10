@@ -21,19 +21,30 @@ package `powerbi-mcp-server`.
    Issues = "https://github.com/dbru540/powerbi-mcp-server/issues"
    ```
 
-4. Create the PyPI project `powerbi-mcp-server`.
-5. Configure PyPI Trusted Publishing:
+4. Create the TestPyPI pending publisher for `powerbi-mcp-server`.
+5. Configure TestPyPI Trusted Publishing:
 
    - Publisher: GitHub
-   - Owner: `<owner>`
-   - Repository: `<repo>`
+   - Owner: `dbru540`
+   - Repository: `powerbi-mcp-server`
+   - Workflow: `publish.yml`
+   - Environment: `testpypi`
+
+6. Production PyPI cannot use `powerbi-mcp-server` unless the existing PyPI
+   project is transferred to this project. As of 2026-06-10, the PyPI name is
+   already owned by another account (`asklokesh <lokeshmure@live.com>`,
+   release `0.1.0`).
+7. If the PyPI name is transferred or a new package name is chosen, configure
+   PyPI Trusted Publishing with:
+
+   - Publisher: GitHub
+   - Owner: `dbru540`
+   - Repository: `powerbi-mcp-server`
    - Workflow: `publish.yml`
    - Environment: `pypi`
 
-6. Configure TestPyPI Trusted Publishing with the same values and environment
-   `testpypi`.
-7. In GitHub repository settings, create environments named `pypi` and
-   `testpypi`.
+8. GitHub repository environments `pypi` and `testpypi` must exist. They were
+   created for `dbru540/powerbi-mcp-server` on 2026-06-10.
 
 ## Local Release Validation
 
@@ -125,6 +136,14 @@ codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-m
 
 ## Known Local Blockers
 
-PyPI Trusted Publishing must still be configured from an authenticated PyPI
-account before PyPI publication can succeed. GitHub-only distribution is
-available from the tagged repository.
+TestPyPI Trusted Publishing must still be configured from an authenticated
+TestPyPI account before TestPyPI publication can succeed. The attempted GitHub
+Actions run `27293576102` failed with `invalid-publisher` for:
+
+```text
+repo:dbru540/powerbi-mcp-server:environment:testpypi
+```
+
+Production PyPI has a separate blocker: the package name `powerbi-mcp-server`
+is already registered by another account. GitHub-only distribution is available
+from the tagged repository.
