@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "powerbi-mcp-designer"
-version = "0.2.0"
+version = "0.2.1"
 description = "MCP server for designing Power BI report visuals and layouts (file-first PBIP/PBIR)"
 readme = "README.md"
 requires-python = ">=3.10"
