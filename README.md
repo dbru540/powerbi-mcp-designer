@@ -1,7 +1,6 @@
-# Power BI MCP Server
+# Power BI MCP Designer
 
-Local MCP server for file-first Power BI PBIP/PBIR/TMDL automation and report
-design assistance.
+File-first MCP server for designing Power BI report visuals, pages and layouts (PBIP/PBIR/TMDL).
 
 The canonical Python package is `powerbi_mcp`. It intentionally avoids using
 `mcp` as the local package name so imports can coexist with the official Model

@@ -1,6 +1,6 @@
-# Install Power BI MCP Server
+# Install Power BI MCP Designer
 
-Power BI MCP Server is designed to run locally through stdio, like many MCP
+Power BI MCP Designer is designed to run locally through stdio, like many MCP
 servers used by Claude Code, Codex, and other MCP-compatible clients.
 
 ## Recommended: uvx
