@@ -2,19 +2,21 @@
 __pycache__/
 *.py[cod]
 *$py.class
-venv/
 .venv/
+venv/
 env/
 .env
 *.egg-info/
 build/
 dist/
+.pytest_cache/
+
+# Project scratch
 temp_test_workspace/
 scratch/
 
 # Node
 node_modules/
-dist/
 *.js.map
 
 # IDE
@@ -30,11 +32,3 @@ Thumbs.db
 # Power BI local settings
 .pbi/
 *.pbix
-
-# OMX durable vs runtime state
-.omx/logs/
-.omx/state/
-.omx/metrics.json
-
-# Superpowers visual brainstorming runtime
-.superpowers/
