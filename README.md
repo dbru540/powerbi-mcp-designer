@@ -12,19 +12,19 @@ Context Protocol Python SDK.
 After publication to PyPI, run it locally with `uvx`:
 
 ```bash
-uvx powerbi-mcp-server-540
+uvx powerbi-mcp-server-designer
 ```
 
 Add it to Claude Code:
 
 ```bash
-claude mcp add --transport stdio powerbi-mcp -- uvx powerbi-mcp-server-540
+claude mcp add --transport stdio powerbi-mcp -- uvx powerbi-mcp-server-designer
 ```
 
 Add it to Codex:
 
 ```bash
-codex mcp add powerbi-mcp -- uvx powerbi-mcp-server-540
+codex mcp add powerbi-mcp -- uvx powerbi-mcp-server-designer
 ```
 
 For local development from this repository:

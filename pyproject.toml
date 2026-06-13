@@ -3,8 +3,8 @@ requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "powerbi-mcp-server-540"
-version = "0.1.2"
+name = "powerbi-mcp-server-designer"
+version = "0.2.0"
 description = "Local MCP server for Power BI PBIP/PBIR/TMDL modeling and report design automation"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,14 +32,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/dbru540/powerbi-mcp-server"
-Repository = "https://github.com/dbru540/powerbi-mcp-server"
-Issues = "https://github.com/dbru540/powerbi-mcp-server/issues"
+Homepage = "https://github.com/dbru540/powerbi-mcp-designer"
+Repository = "https://github.com/dbru540/powerbi-mcp-designer"
+Issues = "https://github.com/dbru540/powerbi-mcp-designer/issues"
 
 [project.scripts]
 powerbi-mcp = "powerbi_mcp.server:main"
 powerbi-mcp-server = "powerbi_mcp.server:main"
-powerbi-mcp-server-540 = "powerbi_mcp.server:main"
+powerbi-mcp-server-designer = "powerbi_mcp.server:main"
 powerbi-mcp-doctor = "powerbi_mcp.cli:doctor_main"
 
 [tool.setuptools.packages.find]

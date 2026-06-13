@@ -2,7 +2,7 @@
   "mcpServers": {
     "powerbi-mcp": {
       "command": "uvx",
-      "args": ["powerbi-mcp-server"]
+      "args": ["powerbi-mcp-server-designer"]
     }
   }
 }

@@ -1,7 +1,7 @@
 # Release Process
 
 This project is distributed as a local stdio MCP server through the Python
-package `powerbi-mcp-server-540`.
+package `powerbi-mcp-server-designer`.
 
 ## One-Time Setup
 
@@ -9,37 +9,37 @@ package `powerbi-mcp-server-540`.
 2. Add the remote locally:
 
    ```bash
-   git remote add origin https://github.com/dbru540/powerbi-mcp-server.git
+   git remote add origin https://github.com/dbru540/powerbi-mcp-designer.git
    ```
 
 3. Add the real GitHub URLs to `pyproject.toml`:
 
    ```toml
    [project.urls]
-   Homepage = "https://github.com/dbru540/powerbi-mcp-server"
-   Repository = "https://github.com/dbru540/powerbi-mcp-server"
-   Issues = "https://github.com/dbru540/powerbi-mcp-server/issues"
+   Homepage = "https://github.com/dbru540/powerbi-mcp-designer"
+   Repository = "https://github.com/dbru540/powerbi-mcp-designer"
+   Issues = "https://github.com/dbru540/powerbi-mcp-designer/issues"
    ```
 
-4. Create the TestPyPI pending publisher for `powerbi-mcp-server-540`.
+4. Create the TestPyPI pending publisher for `powerbi-mcp-server-designer`.
 5. Configure TestPyPI Trusted Publishing:
 
    - Publisher: GitHub
    - Owner: `dbru540`
-   - Repository: `powerbi-mcp-server`
+   - Repository: `powerbi-mcp-designer`
    - Workflow: `publish.yml`
    - Environment: `testpypi`
 
-6. Configure PyPI Trusted Publishing for `powerbi-mcp-server-540` with:
+6. Configure PyPI Trusted Publishing for `powerbi-mcp-server-designer` with:
 
    - Publisher: GitHub
    - Owner: `dbru540`
-   - Repository: `powerbi-mcp-server`
+   - Repository: `powerbi-mcp-designer`
    - Workflow: `publish.yml`
    - Environment: `pypi`
 
-7. GitHub repository environments `pypi` and `testpypi` must exist. They were
-   created for `dbru540/powerbi-mcp-server` on 2026-06-10.
+7. GitHub repository environments `pypi` and `testpypi` must exist on
+   `dbru540/powerbi-mcp-designer` (created during the 0.2.0 rename setup).
 
 ## Local Release Validation
 
@@ -58,15 +58,15 @@ Verify the wheel in a clean environment:
 ```bash
 python -m venv C:/_pbimcp_pkg_install_venv
 C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install --upgrade pip
-C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install dist/powerbi_mcp_server_540-0.1.2-py3-none-any.whl
-C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-server-540.exe --help
+C:/_pbimcp_pkg_install_venv/Scripts/python.exe -m pip install dist/powerbi_mcp_server_designer-0.2.0-py3-none-any.whl
+C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-server-designer.exe --help
 C:/_pbimcp_pkg_install_venv/Scripts/powerbi-mcp-doctor.exe --project example --no-validate
 ```
 
 Verify `uvx` behavior:
 
 ```bash
-uvx --from dist/powerbi_mcp_server_540-0.1.2-py3-none-any.whl powerbi-mcp-server-540 --help
+uvx --from dist/powerbi_mcp_server_designer-0.2.0-py3-none-any.whl powerbi-mcp-server-designer --help
 ```
 
 ## Publish to TestPyPI
@@ -80,7 +80,7 @@ Actions -> Publish Python Package -> Run workflow -> target: testpypi
 Then verify install:
 
 ```bash
-uvx --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ powerbi-mcp-server-540 --help
+uvx --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ powerbi-mcp-server-designer --help
 ```
 
 ## Publish to PyPI
@@ -91,7 +91,7 @@ built distributions to PyPI through Trusted Publishing.
 Verify public install:
 
 ```bash
-uvx powerbi-mcp-server-540 --help
+uvx powerbi-mcp-server-designer --help
 powerbi-mcp-doctor
 ```
 
@@ -100,13 +100,13 @@ powerbi-mcp-doctor
 Claude Code:
 
 ```bash
-claude mcp add --transport stdio powerbi-mcp -- uvx powerbi-mcp-server-540
+claude mcp add --transport stdio powerbi-mcp -- uvx powerbi-mcp-server-designer
 ```
 
 Codex:
 
 ```bash
-codex mcp add powerbi-mcp -- uvx powerbi-mcp-server-540
+codex mcp add powerbi-mcp -- uvx powerbi-mcp-server-designer
 ```
 
 ## GitHub-Only Distribution
@@ -114,32 +114,41 @@ codex mcp add powerbi-mcp -- uvx powerbi-mcp-server-540
 If PyPI is not ready yet, publish a GitHub tag and install directly from Git:
 
 ```bash
-uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.2 powerbi-mcp-server-540 --help
+uvx --from git+https://github.com/dbru540/powerbi-mcp-designer.git@v0.2.0 powerbi-mcp-server-designer --help
 ```
 
 Claude Code:
 
 ```bash
-claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.2 powerbi-mcp-server-540
+claude mcp add --transport stdio powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-designer.git@v0.2.0 powerbi-mcp-server-designer
 ```
 
 Codex:
 
 ```bash
-codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-server.git@v0.1.2 powerbi-mcp-server-540
+codex mcp add powerbi-mcp -- uvx --from git+https://github.com/dbru540/powerbi-mcp-designer.git@v0.2.0 powerbi-mcp-server-designer
 ```
 
 ## Published Release State
 
-Version `0.1.2` is published as `powerbi-mcp-server-540`:
+Version `0.2.0` (`powerbi-mcp-server-designer`) is **pending publication** — not
+yet released. This is a rename of the project; before publishing, redo the
+One-Time Setup above for the new PyPI project name (a new Trusted Publisher must
+be created on both PyPI and TestPyPI for `powerbi-mcp-server-designer`).
+
+After publishing, verify the public install:
+
+```bash
+uvx powerbi-mcp-server-designer --help
+powerbi-mcp-doctor
+```
+
+### Previous release (legacy name)
+
+Version `0.1.2` was published under the former package name
+`powerbi-mcp-server-540`:
 
 - TestPyPI workflow run: `27301193950`
 - PyPI workflow run: `27301286835`
 - GitHub tag: `v0.1.2`
 - PyPI URL: `https://pypi.org/project/powerbi-mcp-server-540/`
-
-Verified public install:
-
-```bash
-uvx powerbi-mcp-server-540 --help
-```
