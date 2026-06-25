@@ -7,7 +7,7 @@ class VisualAICatalogTests(unittest.TestCase):
     def test_visual_catalog_list_returns_first_native_visual_families(self) -> None:
         result = visual_catalog_list()
 
-        self.assertEqual(result["count"], 14)
+        self.assertEqual(result["count"], 15)
         visual_ids = {visual["id"] for visual in result["visuals"]}
         self.assertEqual(
             visual_ids,
@@ -22,6 +22,7 @@ class VisualAICatalogTests(unittest.TestCase):
                 "image",
                 "pieChart",
                 "pivotTable",
+                "scatterChart",
                 "shape",
                 "tableEx",
                 "slicer",
@@ -70,3 +71,23 @@ class VisualAICatalogTests(unittest.TestCase):
                 result = visual_requirements_check(visual_type, assignments={})
 
                 self.assertTrue(result["ok"])
+
+    def test_visual_requirements_check_handles_scatter_chart(self) -> None:
+        ok = visual_requirements_check(
+            "scatterChart",
+            assignments={
+                "X": [{"kind": "measure", "entity": "Budget", "property": "Actual"}],
+                "Y": [{"kind": "measure", "entity": "Budget", "property": "Budget"}],
+            },
+        )
+        self.assertTrue(ok["ok"])
+        self.assertEqual(ok["missing_roles"], [])
+
+        missing = visual_requirements_check(
+            "scatterChart",
+            assignments={
+                "X": [{"kind": "measure", "entity": "Budget", "property": "Actual"}],
+            },
+        )
+        self.assertFalse(missing["ok"])
+        self.assertEqual(missing["missing_roles"], ["Y"])

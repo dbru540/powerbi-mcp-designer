@@ -116,6 +116,23 @@ SUPPORTED_VISUALS: dict[str, dict[str, Any]] = {
         "layout_defaults": {"width": 320, "height": 260},
         "page_archetypes": ["composition", "executive-overview"],
     },
+    "scatterChart": {
+        "visual_type": "scatterChart",
+        "syntax_family": "native-pbir",
+        "generation_path": "native-pbir",
+        "description": "Correlation chart plotting two measures (X and Y) per category, with optional bubble size.",
+        "required_roles": [
+            {"name": "X", "kind": "measure"},
+            {"name": "Y", "kind": "measure"},
+        ],
+        "optional_roles": [
+            {"name": "Category", "kind": "dimension"},
+            {"name": "Size", "kind": "measure"},
+            {"name": "Series", "kind": "dimension"},
+        ],
+        "layout_defaults": {"width": 480, "height": 320},
+        "page_archetypes": ["correlation", "analyst-workbench"],
+    },
     "tableEx": {
         "visual_type": "tableEx",
         "syntax_family": "native-pbir",

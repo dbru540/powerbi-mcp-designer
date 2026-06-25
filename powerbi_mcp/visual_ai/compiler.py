@@ -15,6 +15,7 @@ SUPPORTED_APPLY_TYPES = {
     "image",
     "pieChart",
     "pivotTable",
+    "scatterChart",
     "shape",
     "slicer",
     "tableEx",

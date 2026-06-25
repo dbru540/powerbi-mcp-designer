@@ -118,6 +118,16 @@ class VisualAICompilerTests(unittest.TestCase):
                 "tableEx",
                 {"Values"},
             ),
+            (
+                "show correlation scatter of margin vs budget by project",
+                [{"kind": "dimension", "entity": "Projects", "property": "Project Name"}],
+                [
+                    {"kind": "measure", "entity": "Budgeted tickets", "property": "Fixed price - Margin"},
+                    {"kind": "measure", "entity": "Budgeted tickets", "property": "Fixed price - Budget amount"},
+                ],
+                "scatterChart",
+                {"X", "Y", "Category"},
+            ),
         ]
 
         for index, (intent, dimensions, measures, visual_type, roles) in enumerate(cases):

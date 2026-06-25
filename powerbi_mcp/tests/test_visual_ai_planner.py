@@ -39,6 +39,21 @@ class VisualAIPlannerTests(unittest.TestCase):
         self.assertIn("Values", result["suggested_assignments"])
         self.assertTrue(result["requirements"]["ok"])
 
+    def test_visual_plan_generate_prefers_scatter_for_correlation(self) -> None:
+        result = visual_plan_generate(
+            intent="show correlation scatter of margin vs budget by project",
+            dimensions=[{"kind": "dimension", "entity": "Projects", "property": "Project Name"}],
+            measures=[
+                {"kind": "measure", "entity": "Budgeted tickets", "property": "Fixed price - Margin"},
+                {"kind": "measure", "entity": "Budgeted tickets", "property": "Fixed price - Budget amount"},
+            ],
+        )
+
+        self.assertEqual(result["recommended_visual_type"], "scatterChart")
+        self.assertEqual(result["suggested_assignments"]["X"][0]["property"], "Fixed price - Margin")
+        self.assertEqual(result["suggested_assignments"]["Y"][0]["property"], "Fixed price - Budget amount")
+        self.assertTrue(result["requirements"]["ok"])
+
     def test_visual_plan_generate_supports_focus_native_visual_families(self) -> None:
         dimensions = [{"kind": "dimension", "entity": "Projects", "property": "Project Name"}]
         time_dimensions = [{"kind": "dimension", "entity": "Calendar", "property": "YearMonth"}]

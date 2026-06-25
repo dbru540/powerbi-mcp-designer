@@ -164,6 +164,7 @@ def _presentation_visual_defaults(visual_type: str, title: str | None) -> dict[s
         "columnChart",
         "clusteredColumnChart",
         "lineChart",
+        "scatterChart",
     }:
         objects: dict[str, Any] = {
             "labels": [{"properties": {"show": _literal_expr("true")}}],
@@ -177,7 +178,7 @@ def _presentation_visual_defaults(visual_type: str, title: str | None) -> dict[s
                 }
             ],
         }
-        if visual_type in {"lineChart", "columnChart", "clusteredColumnChart"}:
+        if visual_type in {"lineChart", "columnChart", "clusteredColumnChart", "scatterChart"}:
             objects["legend"] = [{"properties": {"show": _literal_expr("true")}}]
         return {
             "objects": objects,

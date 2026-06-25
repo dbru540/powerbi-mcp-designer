@@ -18,6 +18,8 @@ def _pick_visual_type(intent: str, dimensions: list[dict[str, Any]], measures: l
         return "pivotTable"
     if any(keyword in lowered for keyword in ("detail", "record", "table", "list")) and (dimensions or measures):
         return "tableEx"
+    if any(keyword in lowered for keyword in ("scatter", "correlation", "relationship", "bubble", "x vs y", "xy plot")) and len(measures) >= 2:
+        return "scatterChart"
     if "donut" in lowered and dimensions and measures:
         return "donutChart"
     if "pie" in lowered and dimensions and measures:
@@ -63,6 +65,15 @@ def _suggest_assignments(visual_type: str, dimensions: list[dict[str, Any]], mea
             "Y": measures[:1],
         }
         if visual_type not in {"donutChart", "pieChart"} and len(dimensions) > 1:
+            assignments["Series"] = dimensions[1:2]
+        return assignments
+    if visual_type == "scatterChart":
+        assignments = {"X": measures[:1], "Y": measures[1:2]}
+        if dimensions:
+            assignments["Category"] = dimensions[:1]
+        if len(measures) > 2:
+            assignments["Size"] = measures[2:3]
+        if len(dimensions) > 1:
             assignments["Series"] = dimensions[1:2]
         return assignments
     if visual_type == "pivotTable":
@@ -123,6 +134,8 @@ def visual_plan_generate(
         rationale_parts.append("Intent suggests a category comparison view.")
     elif visual_type in {"donutChart", "pieChart"}:
         rationale_parts.append("Intent suggests a simple part-to-whole composition view.")
+    elif visual_type == "scatterChart":
+        rationale_parts.append("Intent suggests a correlation view across two measures.")
     elif visual_type == "pivotTable":
         rationale_parts.append("Intent suggests an analyst matrix with row, column, and measure intersections.")
     elif visual_type == "slicer":
